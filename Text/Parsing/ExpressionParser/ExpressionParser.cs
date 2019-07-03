@@ -43,6 +43,7 @@ namespace Libs.Text.Parsing
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
 
         private Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
+        private Dictionary<string, Variable> m_TemporaryVariables;
 
         private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.'; }
         private static bool IsIdentifier(char value) { return char.IsLetter(value) || value == '_'; }
@@ -242,23 +243,17 @@ namespace Libs.Text.Parsing
                         }
                         else
                         {
-                            if(Variables != null && Variables.TryGetValue(identifier, out var variable))
+                            if(Variables == null || !Variables.TryGetValue(identifier, out var variable))
                             {
-                                lastToken = variable;
-                                output.Enqueue(lastToken);
-                            }
-                            else
-                            {
-                                if(m_AssignedVariables.TryGetValue(identifier, out var assignedVariable))
+                                if(m_TemporaryVariables == null || !m_TemporaryVariables.TryGetValue(identifier, out variable))
                                 {
-                                    lastToken = assignedVariable;
-                                    output.Enqueue(lastToken);
-                                }
-                                else
-                                {
-                                    throw new NameException($@"Unknown variable") { Name = identifier, Position = Position - identifier.Length };
+                                    if(!m_AssignedVariables.TryGetValue(identifier, out variable))
+                                        throw new NameException($@"Unknown variable") { Name = identifier, Position = Position - identifier.Length };
                                 }
                             }
+
+                            lastToken = variable;
+                            output.Enqueue(lastToken);
                         }
 
                     }
@@ -422,8 +417,10 @@ namespace Libs.Text.Parsing
                     InternalFunction function = (InternalFunction)current;
                     List<object> args = new List<object>();
 
-                    if(!function.AssertArgumentCount(stack.Count))
-                        throw new NameException("Not enough function arguments") { Name = function.Identifier };
+                    if(!function.HasValidArgumentCount)
+                        throw new NameException($@"Invalid number of function arguments provided ({function.ArgumentCount} ({function.MinArgumentCount} - {function.MaxArgumentCount}))") { Name = function.Identifier };
+                    else if(stack.Count < function.ArgumentCount)
+                        throw new NameException($@"Not enough function arguments available ({stack.Count}/{function.ArgumentCount})") { Name = function.Identifier };
 
                     for(int i = 0; i < function.ArgumentCount; i++)
                     {
@@ -441,33 +438,35 @@ namespace Libs.Text.Parsing
             return PopArgument(stack);
         }
 
-        public object Evaluate(string expression)
+        public object Evaluate(string expression, params (string Identifier, object Value)[] variables)
         {
-            return ProcessEvaluation(Parse(expression));
+            return ProcessEvaluation(Parse(expression, variables));
         }
 
-        public object Evaluate(TextReader reader)
+        public object Evaluate(TextReader reader, params (string Identifier, object Value)[] variables)
         {
-            return ProcessEvaluation(Parse(reader));
+            return ProcessEvaluation(Parse(reader, variables));
         }
 
-        public Queue<object> Parse(string expression)
+        public Queue<object> Parse(string expression, params (string Identifier, object Value)[] variables)
         {
             Queue<object> result;
             using(var reader = new StringReader(expression))
             {
-                result = Parse(reader);
+                result = Parse(reader, variables);
             }
 
             return result;
         }
 
-        public Queue<object> Parse(TextReader reader)
+        public Queue<object> Parse(TextReader reader, params (string Identifier, object Value)[] variables)
         {
             Begin(reader);
 
             if(!State)
                 return null;
+
+            m_TemporaryVariables = variables.Select(e => (Variable)e).ToDictionary((e) => e.Identifier);
 
             Queue<object> result = ProcessParsing();
 
@@ -475,6 +474,7 @@ namespace Libs.Text.Parsing
                 throw new SyntaxException("Unexpected characters at end of expression");
 
             Close();
+            m_TemporaryVariables = null;
             return result;
         }
 

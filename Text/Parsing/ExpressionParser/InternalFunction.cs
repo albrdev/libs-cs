@@ -6,9 +6,9 @@ namespace Libs.Text.Parsing
     {
         internal int ArgumentCount { get; set; } = 0;
 
-        internal bool AssertArgumentCount(int count)
+        internal bool HasValidArgumentCount
         {
-            return ((MinArgumentCount < 0 || count >= MinArgumentCount) && (MaxArgumentCount < 0 || count <= MaxArgumentCount)) || (MinArgumentCount == 0 && MaxArgumentCount == 0);
+            get { return (MinArgumentCount < 0 || ArgumentCount >= MinArgumentCount) && (MaxArgumentCount < 0 || ArgumentCount <= MaxArgumentCount); }
         }
 
         public override string ToString()
