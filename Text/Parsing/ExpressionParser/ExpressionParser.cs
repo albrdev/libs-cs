@@ -42,7 +42,7 @@ namespace Libs.Text.Parsing
         public UnaryOperator AssignmentOperator { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
 
-        private Dictionary<string, Variable> m_CustomVariables = new Dictionary<string, Variable>();
+        private Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
 
         private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.'; }
         private static bool IsIdentifier(char value) { return char.IsLetter(value) || value == '_'; }
@@ -107,7 +107,7 @@ namespace Libs.Text.Parsing
             return token is int || token is double || token is string;
         }
 
-        public void ClearCustomVariables() => m_CustomVariables.Clear();
+        public void ClearAssignedVariables() => m_AssignedVariables.Clear();
 
         private object PopArgument(Stack<object> stack)
         {
@@ -235,7 +235,7 @@ namespace Libs.Text.Parsing
                                 throw new NameException($@"Assignment of reserved variable") { Name = identifier, Position = Position - identifier.Length };
 
                             var tmp = new Variable(identifier);
-                            m_CustomVariables[tmp.Identifier] = tmp;
+                            m_AssignedVariables[tmp.Identifier] = tmp;
 
                             lastToken = tmp;
                             output.Enqueue(lastToken);
@@ -249,9 +249,9 @@ namespace Libs.Text.Parsing
                             }
                             else
                             {
-                                if(m_CustomVariables.TryGetValue(identifier, out var customVariable))
+                                if(m_AssignedVariables.TryGetValue(identifier, out var assignedVariable))
                                 {
-                                    lastToken = customVariable;
+                                    lastToken = assignedVariable;
                                     output.Enqueue(lastToken);
                                 }
                                 else
