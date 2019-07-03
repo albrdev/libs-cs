@@ -7,11 +7,11 @@ namespace Libs.Text.Formatting
     public class PercentEncoder : EscapeSequenceFormatter
     {
         public const char DefaultQualifier = '%';
-        public const bool DefaultNumericSpaceEncoding = true;
-        public const bool DefaultNumericBaseUpperCase = true;
+        public const bool DefaultNumericEncodedSpaces = true;
+        public const bool DefaultUpperCaseNumericCodes = true;
 
-        public bool NumericSpaceEncoding { get; set; } = DefaultNumericSpaceEncoding;
-        public bool NumericBaseUpperCase { get; set; } = DefaultNumericBaseUpperCase;
+        public bool NumericEncodedSpaces { get; set; } = DefaultNumericEncodedSpaces;
+        public bool UpperCaseNumericCodes { get; set; } = DefaultUpperCaseNumericCodes;
 
         private char[] m_GenDelims = new char[]
         {
@@ -41,7 +41,7 @@ namespace Libs.Text.Formatting
 
         protected override string Format()
         {
-            if(Current == ' ' && !NumericSpaceEncoding)
+            if(Current == ' ' && !NumericEncodedSpaces)
             {
                 QualifierEnabled = false;
                 return '+'.ToString();
@@ -49,7 +49,7 @@ namespace Libs.Text.Formatting
             else if(m_GenDelims.Contains(Current) || m_SubDelims.Contains(Current) || Current == ' ')
             {
                 QualifierEnabled = true;
-                return ((ushort)Current).ToString($"{(NumericBaseUpperCase ? 'X' : 'x')}2");
+                return ((ushort)Current).ToString($"{(UpperCaseNumericCodes ? 'X' : 'x')}2");
             }
 
             return null;
@@ -64,29 +64,29 @@ namespace Libs.Text.Formatting
             return ((char)System.Convert.ToByte(value, 16)).ToString();
         }
 
-        public string Escape(string text, bool numericBaseUpperCase)
+        public string Escape(string text, bool numericSpaceEncoding = DefaultNumericEncodedSpaces, bool upperCaseNumericCodes = DefaultUpperCaseNumericCodes)
         {
-            return Escape(new StringReader(text), numericBaseUpperCase);
+            return Escape(new StringReader(text), numericSpaceEncoding, upperCaseNumericCodes);
         }
 
-        public string Escape(TextReader reader, bool numericSpaceEncoding = DefaultNumericSpaceEncoding, bool numericBaseUpperCase = DefaultNumericBaseUpperCase)
+        public string Escape(TextReader reader, bool numericSpaceEncoding = DefaultNumericEncodedSpaces, bool upperCaseNumericCodes = DefaultUpperCaseNumericCodes)
         {
-            bool tmpNumericSpaceEncoding = NumericSpaceEncoding;
-            NumericSpaceEncoding = numericSpaceEncoding;
-            bool tmpNumericBase = NumericBaseUpperCase;
-            NumericBaseUpperCase = numericBaseUpperCase;
+            bool tmpNumericEncodedSpaces = NumericEncodedSpaces;
+            NumericEncodedSpaces = numericSpaceEncoding;
+            bool tmpUpperCaseNumericCodes = UpperCaseNumericCodes;
+            UpperCaseNumericCodes = upperCaseNumericCodes;
 
-            string result = Escape(reader);
+            string result = base.Escape(reader);
 
-            NumericSpaceEncoding = tmpNumericSpaceEncoding;
-            NumericBaseUpperCase = tmpNumericBase;
+            NumericEncodedSpaces = tmpNumericEncodedSpaces;
+            UpperCaseNumericCodes = tmpUpperCaseNumericCodes;
             return result;
         }
 
-        public PercentEncoder(bool numericSpaceEncoding = DefaultNumericSpaceEncoding, bool numericBaseUpperCase = DefaultNumericBaseUpperCase) : base(DefaultQualifier)
+        public PercentEncoder(bool numericSpaceEncoding = DefaultNumericEncodedSpaces, bool upperCaseNumericCodes = DefaultUpperCaseNumericCodes) : base(DefaultQualifier)
         {
-            NumericSpaceEncoding = numericSpaceEncoding;
-            NumericBaseUpperCase = numericBaseUpperCase;
+            NumericEncodedSpaces = numericSpaceEncoding;
+            UpperCaseNumericCodes = upperCaseNumericCodes;
         }
     }
 }

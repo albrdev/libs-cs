@@ -98,23 +98,23 @@ namespace Libs.Text.Formatting
             }
         }
 
-        public string Escape(string text, NumericBaseType numericBase, bool numericBaseUpperCase = NativeEscapeSequenceFormatter.DefaultNumericBaseUpperCase)
+        public string Escape(string text, NumericBaseType numericBase = DefaultNumericBase, bool upperCaseNumericCodes = NativeEscapeSequenceFormatter.DefaultUpperCaseNumericCodes)
         {
-            return Escape(new StringReader(text), numericBase, numericBaseUpperCase);
+            return Escape(new StringReader(text), numericBase, upperCaseNumericCodes);
         }
 
-        public string Escape(TextReader reader, NumericBaseType numericBase, bool numericBaseUpperCase = NativeEscapeSequenceFormatter.DefaultNumericBaseUpperCase)
+        public string Escape(TextReader reader, NumericBaseType numericBase = DefaultNumericBase, bool upperCaseNumericCodes = NativeEscapeSequenceFormatter.DefaultUpperCaseNumericCodes)
         {
             NumericBaseType tmpNumericBase = NumericBase;
             NumericBase = numericBase;
 
-            string result = Escape(reader, numericBaseUpperCase);
+            string result = base.Escape(reader, upperCaseNumericCodes);
 
             NumericBase = tmpNumericBase;
             return result;
         }
 
-        public ExtendedNativeEscapeSequenceFormatter(NumericBaseType numericBase = DefaultNumericBase, bool numericBaseUpperCase = NativeEscapeSequenceFormatter.DefaultNumericBaseUpperCase) : base(numericBaseUpperCase)
+        public ExtendedNativeEscapeSequenceFormatter(NumericBaseType numericBase = DefaultNumericBase, bool upperCaseNumericCodes = NativeEscapeSequenceFormatter.DefaultUpperCaseNumericCodes) : base(upperCaseNumericCodes)
         {
             NumericBase = numericBase;
         }

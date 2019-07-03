@@ -7,9 +7,9 @@ namespace Libs.Text.Formatting
     public class NativeEscapeSequenceFormatter : EscapeSequenceFormatter
     {
         public const char DefaultQualifier = '\\';
-        public const bool DefaultNumericBaseUpperCase = false;
+        public const bool DefaultUpperCaseNumericCodes = false;
 
-        public bool NumericBaseUpperCase { get; set; } = DefaultNumericBaseUpperCase;
+        public bool UpperCaseNumericCodes { get; set; } = DefaultUpperCaseNumericCodes;
 
         private static Dictionary<char, char> s_EscapeSequences = new Dictionary<char, char>
         {
@@ -52,11 +52,11 @@ namespace Libs.Text.Formatting
             {
                 if(Current > byte.MaxValue)
                 {
-                    return $"x{System.Convert.ToUInt16(Current).ToString($"{(NumericBaseUpperCase ? 'X' : 'x')}4")}";
+                    return $"x{System.Convert.ToUInt16(Current).ToString($"{(UpperCaseNumericCodes ? 'X' : 'x')}4")}";
                 }
                 else
                 {
-                    return $"x{System.Convert.ToUInt16(Current).ToString($"{(NumericBaseUpperCase ? 'X' : 'x')}2")}";
+                    return $"x{System.Convert.ToUInt16(Current).ToString($"{(UpperCaseNumericCodes ? 'X' : 'x')}2")}";
                 }
             }
             else if(char.IsHighSurrogate(Current))
@@ -69,7 +69,7 @@ namespace Libs.Text.Formatting
                 if(!char.IsLowSurrogate(Current))
                     throw new System.FormatException($@"Invalid low part surrogate character: 'x{System.Convert.ToString(Current, 16).PadLeft(4, '0')}'");
 
-                return $"U{char.ConvertToUtf32(tmpChar, Current).ToString($"{(NumericBaseUpperCase ? 'X' : 'x')}8")}";
+                return $"U{char.ConvertToUtf32(tmpChar, Current).ToString($"{(UpperCaseNumericCodes ? 'X' : 'x')}8")}";
             }
             else
             {
@@ -120,25 +120,25 @@ namespace Libs.Text.Formatting
             }
         }
 
-        public string Escape(string text, bool numericBaseUpperCase)
+        public string Escape(string text, bool upperCaseNumericCodes = DefaultUpperCaseNumericCodes)
         {
-            return Escape(new StringReader(text), numericBaseUpperCase);
+            return Escape(new StringReader(text), upperCaseNumericCodes);
         }
 
-        public string Escape(TextReader reader, bool numericBaseUpperCase)
+        public string Escape(TextReader reader, bool upperCaseNumericCodes = DefaultUpperCaseNumericCodes)
         {
-            bool tmpNumericBase = NumericBaseUpperCase;
-            NumericBaseUpperCase = numericBaseUpperCase;
+            bool tmpUpperCaseNumericCodes = UpperCaseNumericCodes;
+            UpperCaseNumericCodes = upperCaseNumericCodes;
 
-            string result = Escape(reader);
+            string result = base.Escape(reader);
 
-            NumericBaseUpperCase = tmpNumericBase;
+            UpperCaseNumericCodes = tmpUpperCaseNumericCodes;
             return result;
         }
 
-        public NativeEscapeSequenceFormatter(bool numericBaseUpperCase = DefaultNumericBaseUpperCase) : base(DefaultQualifier)
+        public NativeEscapeSequenceFormatter(bool upperCaseNumericCodes = DefaultUpperCaseNumericCodes) : base(DefaultQualifier)
         {
-            NumericBaseUpperCase = numericBaseUpperCase;
+            UpperCaseNumericCodes = upperCaseNumericCodes;
         }
     }
 }
