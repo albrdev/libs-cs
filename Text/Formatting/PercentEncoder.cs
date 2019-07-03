@@ -7,8 +7,10 @@ namespace Libs.Text.Formatting
     public class PercentEncoder : EscapeSequenceFormatter
     {
         public const char DefaultQualifier = '%';
+        public const bool DefaultNumericSpaceEncoding = true;
         public const bool DefaultNumericBaseUpperCase = true;
 
+        public bool NumericSpaceEncoding { get; set; } = DefaultNumericSpaceEncoding;
         public bool NumericBaseUpperCase { get; set; } = DefaultNumericBaseUpperCase;
 
         private char[] m_GenDelims = new char[]
@@ -39,8 +41,14 @@ namespace Libs.Text.Formatting
 
         protected override string Format()
         {
-            if(m_GenDelims.Contains(Current) || m_SubDelims.Contains(Current) || Current == ' ')
+            if(Current == ' ' && !NumericSpaceEncoding)
             {
+                QualifierEnabled = false;
+                return '+'.ToString();
+            }
+            else if(m_GenDelims.Contains(Current) || m_SubDelims.Contains(Current) || Current == ' ')
+            {
+                QualifierEnabled = true;
                 return ((ushort)Current).ToString($"{(NumericBaseUpperCase ? 'X' : 'x')}2");
             }
 
@@ -61,17 +69,24 @@ namespace Libs.Text.Formatting
             return Escape(new StringReader(text), numericBaseUpperCase);
         }
 
-        public string Escape(TextReader reader, bool numericBaseUpperCase)
+        public string Escape(TextReader reader, bool numericSpaceEncoding = DefaultNumericSpaceEncoding, bool numericBaseUpperCase = DefaultNumericBaseUpperCase)
         {
+            bool tmpNumericSpaceEncoding = NumericSpaceEncoding;
+            NumericSpaceEncoding = numericSpaceEncoding;
             bool tmpNumericBase = NumericBaseUpperCase;
             NumericBaseUpperCase = numericBaseUpperCase;
 
             string result = Escape(reader);
 
+            NumericSpaceEncoding = tmpNumericSpaceEncoding;
             NumericBaseUpperCase = tmpNumericBase;
             return result;
         }
 
-        public PercentEncoder() : base(DefaultQualifier) { }
+        public PercentEncoder(bool numericSpaceEncoding = DefaultNumericSpaceEncoding, bool numericBaseUpperCase = DefaultNumericBaseUpperCase) : base(DefaultQualifier)
+        {
+            NumericSpaceEncoding = numericSpaceEncoding;
+            NumericBaseUpperCase = numericBaseUpperCase;
+        }
     }
 }
