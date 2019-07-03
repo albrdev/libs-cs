@@ -67,6 +67,18 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
+        [Fact] // \x0041\x0042\x0043
+        public void ExtendedNativeEscape_05()
+        {
+            var res = s_ExtendedNativeEscapeSequenceFormatter.Escape("\x0041\x0042\x0043", ExtendedNativeEscapeSequenceFormatter.NumericBaseType.Decimal, true);
+            var cmp = @"ABC";
+
+            m_Output.WriteLine($@"""{ res }""");
+            m_Output.WriteLine($@"""{ cmp }""");
+
+            Assert.Equal(cmp, res);
+        }
+
         [Fact] // \U0001d162\\\"\'\0\e
         public void ExtendedNativeUnescape_01()
         {
@@ -108,6 +120,18 @@ namespace UnitTests
         {
             var res = s_ExtendedNativeEscapeSequenceFormatter.Unescape(@"a\x01a\x02\x1Aa\\a\\\na");
             var cmp = "a\x0001a\u0002\x001aa\\a\\\na";
+
+            m_Output.WriteLine($@"""{ res }""");
+            m_Output.WriteLine($@"""{ cmp }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // ABC
+        public void ExtendedNativeUnescape_05()
+        {
+            var res = s_ExtendedNativeEscapeSequenceFormatter.Unescape(@"ABC");
+            var cmp = "\x0041\x0042\x0043";
 
             m_Output.WriteLine($@"""{ res }""");
             m_Output.WriteLine($@"""{ cmp }""");
