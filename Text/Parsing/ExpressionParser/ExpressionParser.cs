@@ -42,7 +42,7 @@ namespace Libs.Text.Parsing
         public UnaryOperator AssignmentOperator { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
 
-        private Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
+        private readonly Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
         private Dictionary<string, Variable> m_TemporaryVariables;
 
         private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.'; }
@@ -376,11 +376,10 @@ namespace Libs.Text.Parsing
                 else if(current is Variable)
                 {
                     object value = ((Variable)current).Value;
-                    stack.Push(value != null ? value : current);
+                    stack.Push(value ?? current);
                 }
-                else if(current is UnaryOperator)
+                else if(current is UnaryOperator op)
                 {
-                    UnaryOperator op = (UnaryOperator)current;
                     if(stack.Count < 1)
                         throw new NameException("Not enough unary operator arguments") { Name = op.Identifier.ToString() };
 
@@ -391,8 +390,7 @@ namespace Libs.Text.Parsing
                             throw new NameException("No assignable variable provided");
 
                         object b = PopArgument(stack);
-                        Variable variable = b as Variable;
-                        if(variable == null)
+                        if(!(b is Variable variable))
                             throw new NameException("Token is not of variable type") { Name = b.GetType().Name };
 
                         variable.Value = op.Callback(a);
@@ -413,9 +411,8 @@ namespace Libs.Text.Parsing
                     object tmp = ((BinaryOperator)current).Callback(a, b);
                     stack.Push(tmp);
                 }
-                else if(current is InternalFunction)
+                else if(current is InternalFunction function)
                 {
-                    InternalFunction function = (InternalFunction)current;
                     List<object> args = new List<object>();
 
                     if(!function.HasValidArgumentCount)
