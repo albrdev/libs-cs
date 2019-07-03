@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Xunit;
+using Xunit.Abstractions;
 using Libs.Collections;
 using Libs.Text.Parsing;
 using static Libs.Text.Parsing.Operator;
 using Libs.Text.Formatting;
-using Xunit.Abstractions;
 
 namespace UnitTests
 {

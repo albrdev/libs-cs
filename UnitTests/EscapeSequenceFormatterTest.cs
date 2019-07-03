@@ -1,7 +1,7 @@
 using System;
 using Xunit;
-using Libs.Text.Formatting;
 using Xunit.Abstractions;
+using Libs.Text.Formatting;
 
 namespace UnitTests
 {
