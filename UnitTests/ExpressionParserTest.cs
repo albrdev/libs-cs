@@ -298,7 +298,7 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
-        [Fact, TestPriority(-2)] // x * x - y * y
+        [Fact] // x * x - y * y
         public void Arithmetic_24()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"x * x - y * y", ("x", 10), ("y", 5));
@@ -310,7 +310,7 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
-        [Fact, TestPriority(-1)] // ans(0) + ans(-4) - ans()
+        [Fact] // ans(0) + ans(-4) - ans()
         public void Arithmetic_25()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"ans(0) + ans(-4) - ans()");
@@ -322,7 +322,7 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
-        [Fact, TestPriority(-1)] // 1 + pi() * 2
+        [Fact] // 1 + pi() * 2
         public void Arithmetic_26()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"1 + pi() * 2");
