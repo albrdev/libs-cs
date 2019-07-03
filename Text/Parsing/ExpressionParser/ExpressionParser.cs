@@ -317,6 +317,7 @@ namespace Libs.Text.Parsing
                                 output.Enqueue(stack.Pop());
                             }
 
+                            lastToken = Current;
                             break;
                         }
                         case ',':
