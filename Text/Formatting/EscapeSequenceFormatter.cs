@@ -21,6 +21,8 @@ namespace Libs.Text.Formatting
             }
         }
 
+        protected bool QualifierEnabled { get; set; } = true;
+
         public string ProcessFormatting()
         {
             StringBuilder result = new StringBuilder();
@@ -29,7 +31,7 @@ namespace Libs.Text.Formatting
                 string sequence = Format();
                 if(sequence != null)
                 {
-                    result.Append(Qualifier + sequence);
+                    result.Append(QualifierEnabled ? Qualifier + sequence : sequence);
                 }
                 else
                 {
