@@ -17,11 +17,22 @@ namespace UnitTests
         #region Custom methods
         public object Ans(params object[] args)
         {
+            if(!ResultVariables.Any())
+                throw new System.IndexOutOfRangeException();
+
             if(!args.Any())
                 return ResultVariables.Last();
 
             int index = System.Convert.ToInt32(args[0]);
-            return index >= 0 ? ResultVariables[index] : ResultVariables[ResultVariables.Count + index];
+            if(index < 0)
+                index = ResultVariables.Count + index;
+
+            if(index < 0)
+                index = 0;
+            else if(index >= ResultVariables.Count)
+                index = ResultVariables.Count - 1;
+
+            return ResultVariables[index];
         }
 
         public static object PI(params object[] args)
