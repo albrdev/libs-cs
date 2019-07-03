@@ -91,25 +91,25 @@ namespace UnitTests
 
         private static BinaryOperator s_ArithmeticAbbreviationOperator = ("*", 3, AssociativityType.Right, (lhs, rhs) => System.Convert.ToDouble(lhs) * System.Convert.ToDouble(rhs));
 
-        private static Dictionary<string, object> s_ArithmeticVariables = new Dictionary<string, object>
+        private static ExtendedDictionary<string, Variable> s_ArithmeticVariables = new ExtendedDictionary<string, Variable>((value) => value.Identifier)
         {
-            { "T",          1000000000000.0 },
-            { "G",          1000000000.0 },
-            { "M",          1000000.0 },
-            { "k",          1000.0 },
-            { "h",          100.0 },
-            { "da",         10.0 },
-            { "d",          0.1 },
-            { "c",          0.01 },
-            { "m",          0.001 },
-            { "u",          0.000001 },
-            { "n",          0.000000001 },
-            { "p",          0.000000000001 },
+            ( "T",          1000000000000.0 ),
+            ( "G",          1000000000.0 ),
+            ( "M",          1000000.0 ),
+            ( "k",          1000.0 ),
+            ( "h",          100.0 ),
+            ( "da",         10.0 ),
+            ( "d",          0.1 ),
+            ( "c",          0.01 ),
+            ( "m",          0.001 ),
+            ( "u",          0.000001 ),
+            ( "n",          0.000000001 ),
+            ( "p",          0.000000000001 ),
 
-            { "math.pi",    Math.PI },
-            { "math.e",     Math.E },
-            { "phys.c",     299792458 },
-            { "phys.au",    149597870700 }
+            ( "math.pi",    Math.PI ),
+            ( "math.e",     Math.E ),
+            ( "phys.c",     299792458 ),
+            ( "phys.au",    149597870700 )
         };
 
         private static ExtendedDictionary<string, Function> s_ArithmeticFunctions = new ExtendedDictionary<string, Function>((value) => value.Identifier)
@@ -139,10 +139,10 @@ namespace UnitTests
         #endregion
 
         #region Bitwise
-        private static Dictionary<string, object> m_BitwiseVariables = new Dictionary<string, object>
+        private static ExtendedDictionary<string, Variable> m_BitwiseVariables = new ExtendedDictionary<string, Variable>((value) => value.Identifier)
         {
-            { "false", 0 },
-            { "true", 1 }
+            ( "false", 0 ),
+            ( "true", 1 )
         };
 
         private static ExtendedDictionary<string, Function> m_BitwiseFunctions = new ExtendedDictionary<string, Function>((value) => value.Identifier)
@@ -390,7 +390,7 @@ namespace UnitTests
         public void Arithmetic_19()
         {
             var res = s_ArithmeticExpressionParser.Evaluate(@"(phys.au / phys.c) / 60 # How long light travels from the Sun to Earth");
-            double cmp = (System.Convert.ToDouble(s_ArithmeticVariables["phys.au"]) / System.Convert.ToDouble(s_ArithmeticVariables["phys.c"])) / 60;
+            double cmp = (System.Convert.ToDouble(s_ArithmeticVariables["phys.au"].Value) / System.Convert.ToDouble(s_ArithmeticVariables["phys.c"].Value)) / 60;
 
             m_Output.WriteLine($@"""{ res }""");
             m_Output.WriteLine($@"""{ cmp }""");
@@ -402,7 +402,7 @@ namespace UnitTests
         public void Arithmetic_20()
         {
             var res = s_ArithmeticExpressionParser.Evaluate(@"384402000 / phys.c # How long light travels from the Moon to Earth");
-            double cmp = 384402000 / System.Convert.ToDouble(s_ArithmeticVariables["phys.c"]);
+            double cmp = 384402000 / System.Convert.ToDouble(s_ArithmeticVariables["phys.c"].Value);
 
             m_Output.WriteLine($@"""{ res }""");
             m_Output.WriteLine($@"""{ cmp }""");
