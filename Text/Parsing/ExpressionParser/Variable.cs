@@ -14,6 +14,11 @@ namespace Libs.Text.Parsing
             internal set { m_Value = value; }
         }
 
+        public static implicit operator Variable((string Identifier, object Value) value)
+        {
+            return new Variable(value.Identifier, value.Value);
+        }
+
         public override string ToString()
         {
             return Identifier;

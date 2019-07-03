@@ -36,11 +36,13 @@ namespace Libs.Text.Parsing
 
         public IDictionary<char, UnaryOperator> UnaryOperators { get; set; }
         public IDictionary<string, BinaryOperator> BinaryOperators { get; set; }
-        public IDictionary<string, object> Variables { get; set; }
+        public IDictionary<string, Variable> Variables { get; set; }
         public IDictionary<string, Function> Functions { get; set; }
         public BinaryOperator AbbreviationOperator { get; set; }
         public UnaryOperator AssignmentOperator { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
+
+        private Dictionary<string, Variable> m_CustomVariables = new Dictionary<string, Variable>();
 
         private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.'; }
         private static bool IsIdentifier(char value) { return char.IsLetter(value) || value == '_'; }
@@ -94,8 +96,6 @@ namespace Libs.Text.Parsing
 
             return true;
         }
-
-        private Dictionary<string, Variable> m_CustomVariables = new Dictionary<string, Variable>();
 
         private static bool IsCharToken(object token, params char[] cmp)
         {
@@ -244,7 +244,7 @@ namespace Libs.Text.Parsing
                         {
                             if(Variables != null && Variables.TryGetValue(identifier, out var variable))
                             {
-                                lastToken = new Variable(identifier, variable);
+                                lastToken = variable;
                                 output.Enqueue(lastToken);
                             }
                             else
@@ -478,7 +478,7 @@ namespace Libs.Text.Parsing
             return result;
         }
 
-        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, object> variables, IDictionary<string, Function> functions, BinaryOperator abbreviationOperator = null, UnaryOperator assignmentOperator = null, EscapeSequenceFormatter escapeSequenceFormatter = null)
+        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, Variable> variables, IDictionary<string, Function> functions, BinaryOperator abbreviationOperator = null, UnaryOperator assignmentOperator = null, EscapeSequenceFormatter escapeSequenceFormatter = null)
         {
             UnaryOperators = unaryOperators;
             BinaryOperators = binaryOperators;
