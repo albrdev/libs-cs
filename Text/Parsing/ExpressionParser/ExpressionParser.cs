@@ -301,7 +301,8 @@ namespace Libs.Text.Parsing
                             }
 
                             // a.7.4 If the stack runs out without finding a left parenthesis, then there are mismatched parentheses.
-                            if(!IsCharToken(top, '(')) throw new SyntaxException("No matching right parenthesis");
+                            if(!IsCharToken(top, '('))
+                                throw new SyntaxException($@"Missing matching closing bracket");
 
                             // a.7.3 If the token at the top of the stack is a function token, pop it onto the output queue.
                             if(stack.Count > 0 && stack.Peek() is InternalFunction)
@@ -328,7 +329,8 @@ namespace Libs.Text.Parsing
                                 output.Enqueue(stack.Pop());
                             }
 
-                            if(!IsCharToken(top, '(')) throw new SyntaxException("No matching left parenthesis");
+                            if(!IsCharToken(top, '('))
+                                throw new SyntaxException($@"Missing matching opening bracket");
 
                             lastToken = Current;
                             break;
