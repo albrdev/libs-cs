@@ -124,8 +124,8 @@ namespace Libs.Text.Parsing
             string binOps = BinaryOperators != null ? string.Concat(BinaryOperators.Keys) : string.Empty;
             unOps += AssignmentOperator?.Identifier;
 
-            // a While there are tokens to be read:
-            // a.1 Read a token.
+            // While there are tokens to be read:
+            // Read a token.
             while(State)
             {
                 Skip(char.IsWhiteSpace);
@@ -136,7 +136,7 @@ namespace Libs.Text.Parsing
                 }
                 else if(IsNumber(Current))
                 {
-                    // a.2 If the token is a number, then add it to the output queue.
+                    // If the token is a number, then add it to the output queue.
                     lastToken = ParseNumber(ExtractNumber());
                     output.Enqueue(lastToken);
                 }
@@ -178,8 +178,8 @@ namespace Libs.Text.Parsing
                             throw new NameException($@"Invalid binary operator") { Name = identifier, Position = Position - identifier.Length };
                     }
 
-                    // a.5 If the token is an operator, o_1, then:
-                    // a.5.1 while there is an operator token, o_2, at the top of the stack, and either o_1 is left-associative and its precedence is less than or equal to that of o_2, or o_1 if right associative, and has precedence less than that of o_2, then pop o_2 off the stack, onto the output queue;
+                    // If the token is an operator, o_1, then:
+                    // while there is an operator token, o_2, at the top of the stack, and either o_1 is left-associative and its precedence is less than or equal to that of o_2, or o_1 if right associative, and has precedence less than that of o_2, then pop o_2 off the stack, onto the output queue;
                     Operator lastOp = (Operator)lastToken;
                     Operator tmpOp;
                     while(stack.Count > 0 && (tmpOp = (stack.Peek() as Operator)) != null)
@@ -194,7 +194,7 @@ namespace Libs.Text.Parsing
                         }
                     }
 
-                    // a.5.2 push o_1 onto the stack.
+                    // push o_1 onto the stack.
                     stack.Push(lastOp);
                 }
                 else if(IsIdentifier(Current))
@@ -210,7 +210,7 @@ namespace Libs.Text.Parsing
 
                     if(State && Current == '(')
                     {
-                        // a.3 If the token is a function token, then push it onto the stack.
+                        // If the token is a function token, then push it onto the stack.
                         if(Functions != null && Functions.TryGetValue(identifier, out var function))
                         {
                             lastToken = new InternalFunction(function);
@@ -270,7 +270,7 @@ namespace Libs.Text.Parsing
                             }
 
                             lastToken = Current;
-                            // a.6 If the token is a left parenthesis, then push it onto the stack.
+                            // If the token is a left parenthesis, then push it onto the stack.
                             stack.Push(lastToken);
                             break;
                         case ')':
@@ -291,20 +291,20 @@ namespace Libs.Text.Parsing
                                 }
                             }
 
-                            // a.7 If the token is a right parenthesis:
-                            // a.7.1 Until the token at the top of the stack is a left parenthesis, pop operators off the stack onto the output queue.
-                            // a.7.2 Pop the left parenthesis from the stack, but not onto the output queue.
+                            // If the token is a right parenthesis:
+                            // Until the token at the top of the stack is a left parenthesis, pop operators off the stack onto the output queue.
+                            // Pop the left parenthesis from the stack, but not onto the output queue.
                             object top = null;
                             while(stack.Count > 0 && !IsCharToken((top = stack.Pop()), '('))
                             {
                                 output.Enqueue(top);
                             }
 
-                            // a.7.4 If the stack runs out without finding a left parenthesis, then there are mismatched parentheses.
+                            // If the stack runs out without finding a left parenthesis, then there are mismatched parentheses.
                             if(!IsCharToken(top, '('))
                                 throw new SyntaxException($@"Missing matching closing bracket");
 
-                            // a.7.3 If the token at the top of the stack is a function token, pop it onto the output queue.
+                            // If the token at the top of the stack is a function token, pop it onto the output queue.
                             if(stack.Count > 0 && stack.Peek() is InternalFunction)
                             {
                                 output.Enqueue(stack.Pop());
@@ -321,8 +321,8 @@ namespace Libs.Text.Parsing
                                 fh.Function.ArgumentCount++;
                             }
 
-                            // a.4 If the token is a function argument separator (e.g., a comma):
-                            // a.4.1 Until the token at the top of the stack is a left parenthesis, pop operators off the stack onto the output queue. If no left parentheses are encountered, either the separator was misplaced or parentheses were mismatched.
+                            // If the token is a function argument separator (e.g., a comma):
+                            // Until the token at the top of the stack is a left parenthesis, pop operators off the stack onto the output queue. If no left parentheses are encountered, either the separator was misplaced or parentheses were mismatched.
                             object top = null;
                             while(stack.Count > 0 && !IsCharToken((top = stack.Peek()), '('))
                             {
@@ -341,19 +341,19 @@ namespace Libs.Text.Parsing
                 }
             }
 
-            // b When there are no more tokens to read:
-            // b.1 While there are still operator tokens in the stack:
+            // When there are no more tokens to read:
+            // While there are still operator tokens in the stack:
             while(stack.Count > 0)
             {
                 var top = stack.Pop();
-                // b.1.1 If the operator token on the top of the stack is a parenthesis, then there are mismatched parentheses.
+                // If the operator token on the top of the stack is a parenthesis, then there are mismatched parentheses.
                 if(!(top is Operator)) throw new SyntaxException("No matching right parenthesis");
 
-                // b.1.2 Pop the operator onto the output queue.
+                // Pop the operator onto the output queue.
                 output.Enqueue(top);
             }
 
-            // c Exit.
+            // Exit.
             return output;
         }
 
