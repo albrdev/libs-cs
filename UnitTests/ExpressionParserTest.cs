@@ -17,7 +17,7 @@ namespace UnitTests
             m_Output = output;
         }
 
-        [Fact, TestPriority(0)] // 1 + 10^2^3
+        [Fact, TestPriority(1)] // 1 + 10^2^3
         public void Arithmetic_01()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"1 + 10^2^3");
@@ -30,7 +30,7 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
-        [Fact, TestPriority(1)] // 3 + --4
+        [Fact, TestPriority(2)] // 3 + --4
         public void Arithmetic_02()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"3 + --4");
@@ -43,7 +43,7 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
-        [Fact, TestPriority(2)] // 2math.pi
+        [Fact, TestPriority(3)] // 2math.pi
         public void Arithmetic_03()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"2math.pi");
@@ -56,7 +56,7 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
-        [Fact, TestPriority(3)] // 3 + 4 * 2 / (1 - 5) ^ 2 ^ 3
+        [Fact, TestPriority(4)] // 3 + 4 * 2 / (1 - 5) ^ 2 ^ 3
         public void Arithmetic_04()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"3 + 4 * 2 / (1 - 5) ^ 2 ^ 3");
@@ -69,7 +69,7 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
-        [Fact, TestPriority(4)] // sin(max(2, 3) / 3 * math.pi)
+        [Fact, TestPriority(5)] // sin(max(2, 3) / 3 * math.pi)
         public void Arithmetic_05()
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"sin(max(2, 3) / 3 * math.pi)");
@@ -327,6 +327,18 @@ namespace UnitTests
         {
             var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"1 + pi() * 2");
             double cmp = 1 + System.Convert.ToDouble(ExpressionParserTestFixture.PI()) * 2;
+
+            m_Output.WriteLine($@"""{ res }""");
+            m_Output.WriteLine($@"""{ cmp }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // "abc" + "123"
+        public void Arithmetic_27()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"""abc"" + ""123""");
+            var cmp = $@"abc123";
 
             m_Output.WriteLine($@"""{ res }""");
             m_Output.WriteLine($@"""{ cmp }""");

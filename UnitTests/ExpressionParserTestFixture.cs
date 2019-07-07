@@ -40,6 +40,11 @@ namespace UnitTests
             return Math.PI;
         }
 
+        public static object StringLength(params object[] args)
+        {
+            return args.Length > 0 ? args[0].ToString().Length : 0;
+        }
+
         public static object Min(params object[] args)
         {
             double result = double.MaxValue;
@@ -112,7 +117,7 @@ namespace UnitTests
         public ExpressionParserTestFixture()
         {
             AssignmentOperator = ('=', 1, AssociativityType.Right, (value) => value);
-            EscapeSequenceFormatter = new NativeEscapeSequenceFormatter();
+            EscapeSequenceFormatter = new ExtendedNativeEscapeSequenceFormatter();
             ResultVariables = new List<object>();
 
             ArithmeticUnaryOperators = new ExtendedDictionary<char, UnaryOperator>((value) => value.Identifier)
@@ -122,7 +127,7 @@ namespace UnitTests
             };
             ArithmeticBinaryOperators = new ExtendedDictionary<string, BinaryOperator>((value) => value.Identifier)
             {
-                ( "+", 4, AssociativityType.Left,   (lhs, rhs) => System.Convert.ToDouble(lhs) + System.Convert.ToDouble(rhs) ),
+                ( "+", 4, AssociativityType.Left,   (lhs, rhs) => lhs is string || rhs is string ? (object)$"{lhs}{rhs}" : (object)(System.Convert.ToDouble(lhs) + System.Convert.ToDouble(rhs)) ),
                 ( "-", 4, AssociativityType.Left,   (lhs, rhs) => System.Convert.ToDouble(lhs) - System.Convert.ToDouble(rhs) ),
                 ( "*", 3, AssociativityType.Left,   (lhs, rhs) => System.Convert.ToDouble(lhs) * System.Convert.ToDouble(rhs) ),
                 ( "/", 3, AssociativityType.Left,   (lhs, rhs) => System.Convert.ToDouble(lhs) / System.Convert.ToDouble(rhs) ),
@@ -174,7 +179,8 @@ namespace UnitTests
                 ( "hcos",       1,      (args) => Math.Cosh(System.Convert.ToDouble(args[0])) ),
                 ( "htan",       1,      (args) => Math.Tanh(System.Convert.ToDouble(args[0])) ),
                 ( "min",        1, -1,  Min ),
-                ( "max",        1, -1,  Max )
+                ( "max",        1, -1,  Max ),
+                ( "strlen",        1,      StringLength )
             };
             ArithmeticAbbreviationOperator = ("*", 3, AssociativityType.Right, (lhs, rhs) => System.Convert.ToDouble(lhs) * System.Convert.ToDouble(rhs));
             ArithmeticExpressionParser = new ExpressionParser(ArithmeticUnaryOperators, ArithmeticBinaryOperators, ArithmeticVariables, ArithmeticFunctions, ArithmeticAbbreviationOperator, AssignmentOperator, EscapeSequenceFormatter);
