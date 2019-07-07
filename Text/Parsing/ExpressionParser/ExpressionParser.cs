@@ -62,7 +62,7 @@ namespace Libs.Text.Parsing
             char prevChar = '\0';
             string result = Next((chr) =>
             {
-                bool status = Current != delimiter || prevChar == '\\';//*
+                bool status = Current != delimiter || (EscapeSequenceFormatter != null && prevChar == EscapeSequenceFormatter.Qualifier);
                 prevChar = Current;
                 return status;
             });
