@@ -83,19 +83,16 @@ namespace Libs.Text.Parsing
             return result;
         }
 
-        private bool TryParseInteger(string value, out object result)
+        private object ParseNumber(string value)
         {
             try
             {
-                result = System.Convert.ToInt32(value);
+                return System.Convert.ToInt32(value);
             }
             catch(System.FormatException)
             {
-                result = default(int);
-                return false;
+                return System.Convert.ToDouble(value);
             }
-
-            return true;
         }
 
         private static bool IsCharToken(object token, params char[] cmp)
@@ -140,12 +137,7 @@ namespace Libs.Text.Parsing
                 else if(IsNumber(Current))
                 {
                     // a.2 If the token is a number, then add it to the output queue.
-                    string value = ExtractNumber();
-                    if(!TryParseInteger(value, out lastToken))
-                    {
-                        lastToken = System.Convert.ToDouble(value);
-                    }
-
+                    lastToken = ParseNumber(ExtractNumber());
                     output.Enqueue(lastToken);
                 }
                 else if(Current == '\'' || Current == '\"')
