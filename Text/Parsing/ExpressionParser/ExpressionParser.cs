@@ -80,7 +80,7 @@ namespace Libs.Text.Parsing
                 throw new SyntaxException($@"Missing matching closing quote") { Position = Position - (result.Length + 1) };
 
             Next();
-            return result;
+            return EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape(result) : result;
         }
 
         private string ExtractIdentifier()
@@ -152,8 +152,7 @@ namespace Libs.Text.Parsing
                 }
                 else if(Current == '\'' || Current == '\"')
                 {
-                    string value = ExtractString();
-                    lastToken = EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape(value) : value;
+                    lastToken = ExtractString();
                     output.Enqueue(lastToken);
                 }
                 else if(binOps.Contains(Current) || unOps.Contains(Current))
