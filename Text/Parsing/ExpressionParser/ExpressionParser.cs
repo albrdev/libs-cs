@@ -139,7 +139,7 @@ namespace Libs.Text.Parsing
             {
                 Skip(char.IsWhiteSpace);
 
-                if(Current == CommentIdentifier)
+                if(!State || Current == CommentIdentifier)
                 {
                     break;
                 }
