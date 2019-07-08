@@ -175,9 +175,9 @@ namespace UnitTests
                 ( "asin",       1,      (args) => Math.Asin(System.Convert.ToDouble(args[0])) ),
                 ( "acos",       1,      (args) => Math.Acos(System.Convert.ToDouble(args[0])) ),
                 ( "atan",       1,      (args) => Math.Atan(System.Convert.ToDouble(args[0])) ),
-                ( "hsin",       1,      (args) => Math.Sinh(System.Convert.ToDouble(args[0])) ),
-                ( "hcos",       1,      (args) => Math.Cosh(System.Convert.ToDouble(args[0])) ),
-                ( "htan",       1,      (args) => Math.Tanh(System.Convert.ToDouble(args[0])) ),
+                ( "sinh",       1,      (args) => Math.Sinh(System.Convert.ToDouble(args[0])) ),
+                ( "cosh",       1,      (args) => Math.Cosh(System.Convert.ToDouble(args[0])) ),
+                ( "tanh",       1,      (args) => Math.Tanh(System.Convert.ToDouble(args[0])) ),
                 ( "min",        1, -1,  Min ),
                 ( "max",        1, -1,  Max ),
                 ( "strlen",        1,      StringLength )
