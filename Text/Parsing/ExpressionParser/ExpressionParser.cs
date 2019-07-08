@@ -119,12 +119,6 @@ namespace Libs.Text.Parsing
         private object PopArgument(Stack<object> stack)
         {
             var result = stack.Pop();
-            return result is string && EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape((string)result) : result;
-        }
-
-        private object PopArgument2(Stack<object> stack)
-        {
-            var result = PopArgument(stack);
             return result is Variable tmp ? tmp.Value ?? throw new NameException($@"Use of unassigned variable") { Name = tmp.Identifier } : result;
         }
 
@@ -158,7 +152,8 @@ namespace Libs.Text.Parsing
                 }
                 else if(Current == '\'' || Current == '\"')
                 {
-                    lastToken = ExtractString();
+                    string value = ExtractString();
+                    lastToken = EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape(value) : value;
                     output.Enqueue(lastToken);
                 }
                 else if(binOps.Contains(Current) || unOps.Contains(Current))
@@ -386,13 +381,13 @@ namespace Libs.Text.Parsing
                     if(stack.Count < 1)
                         throw new NameException("Not enough unary operator arguments") { Name = op.Identifier.ToString() };
 
-                    object a = PopArgument2(stack);
+                    object a = PopArgument(stack);
                     if(current == AssignmentOperator)
                     {
                         if(stack.Count < 1)
                             throw new NameException("No assignable variable provided");
 
-                        object b = PopArgument(stack);
+                        object b = stack.Pop();
                         if(!(b is Variable variable))
                             throw new NameException("Token is not of variable type") { Name = b.GetType().Name };
 
@@ -409,8 +404,8 @@ namespace Libs.Text.Parsing
                     if(stack.Count < 2)
                         throw new NameException("Not enough binary operator arguments") { Name = ((BinaryOperator)current).Identifier };
 
-                    object b = PopArgument2(stack);
-                    object a = PopArgument2(stack);
+                    object b = PopArgument(stack);
+                    object a = PopArgument(stack);
                     object tmp = ((BinaryOperator)current).Callback(a, b);
                     stack.Push(tmp);
                 }
@@ -425,7 +420,7 @@ namespace Libs.Text.Parsing
 
                     for(int i = 0; i < function.ArgumentCount; i++)
                     {
-                        args.Add(PopArgument2(stack));
+                        args.Add(PopArgument(stack));
                     }
 
                     args.Reverse();
@@ -436,7 +431,7 @@ namespace Libs.Text.Parsing
             if(stack.Count > 1)
                 throw new SyntaxException("Too many value tokens provided");
 
-            return PopArgument(stack);
+            return stack.Pop();
         }
 
         public object Evaluate(string expression, params (string Identifier, object Value)[] variables)
