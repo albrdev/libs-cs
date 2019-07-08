@@ -346,6 +346,66 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
+        [Fact] // lol + (lol = 1)
+        public void Arithmetic_28()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"lol + (lol = 1)");
+            double cmp = 1 + 1;
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // lol + (lol = max(1, 2, 3))
+        public void Arithmetic_29()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"lol + (lol = max(1, 2, 3))");
+            double cmp = 3 + (double)ExpressionParserTestFixture.Max(1, 2, 3);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // lol + neg(lol = max(1, 2, 3))
+        public void Arithmetic_30()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"lol + neg(lol = max(1, 2, 3))");
+            double cmp = -3 + (double)ExpressionParserTestFixture.Max(1, 2, 3);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // lol + -(lol = max(1, 2, 3))
+        public void Arithmetic_31()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"lol + -(lol = max(1, 2, 3))");
+            double cmp = 3 + -(double)ExpressionParserTestFixture.Max(1, 2, 3);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // lol + (lol = -max(1, 2, 3))
+        public void Arithmetic_32()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"lol + (lol = -max(1, 2, 3))");
+            double cmp = -3 + -(double)ExpressionParserTestFixture.Max(1, 2, 3);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
         [Fact] // 1 + 0 * 1
         public void Bitwise_01()
         {
