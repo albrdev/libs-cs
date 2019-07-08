@@ -79,7 +79,7 @@ namespace Libs.Text.Formatting
             return result;
         }
 
-        private object ParseNumber(string value)
+        private static object ParseNumber(string value)
         {
             try
             {

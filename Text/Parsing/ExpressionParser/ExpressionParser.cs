@@ -83,7 +83,7 @@ namespace Libs.Text.Parsing
             return result;
         }
 
-        private object ParseNumber(string value)
+        private static object ParseNumber(string value)
         {
             try
             {
