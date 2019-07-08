@@ -419,7 +419,7 @@ namespace Libs.Text.Parsing
             if(stack.Count > 1)
                 throw new SyntaxException("Too many value tokens provided");
 
-            return stack.Pop();
+            return PopArgument(stack);
         }
 
         public object Evaluate(string expression, params (string Identifier, object Value)[] variables)
