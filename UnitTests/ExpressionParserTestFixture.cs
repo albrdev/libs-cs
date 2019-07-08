@@ -178,9 +178,12 @@ namespace UnitTests
                 ( "sinh",       1,      (args) => Math.Sinh(System.Convert.ToDouble(args[0])) ),
                 ( "cosh",       1,      (args) => Math.Cosh(System.Convert.ToDouble(args[0])) ),
                 ( "tanh",       1,      (args) => Math.Tanh(System.Convert.ToDouble(args[0])) ),
+                ( "asinh",      1,      (args) => Math.Asinh(System.Convert.ToDouble(args[0])) ),
+                ( "acosh",      1,      (args) => Math.Acosh(System.Convert.ToDouble(args[0])) ),
+                ( "atanh",      1,      (args) => Math.Atanh(System.Convert.ToDouble(args[0])) ),
                 ( "min",        1, -1,  Min ),
                 ( "max",        1, -1,  Max ),
-                ( "strlen",        1,      StringLength )
+                ( "strlen",     1,      StringLength )
             };
             ArithmeticAbbreviationOperator = ("*", 3, AssociativityType.Right, (lhs, rhs) => System.Convert.ToDouble(lhs) * System.Convert.ToDouble(rhs));
             ArithmeticExpressionParser = new ExpressionParser(ArithmeticUnaryOperators, ArithmeticBinaryOperators, ArithmeticVariables, ArithmeticFunctions, ArithmeticAbbreviationOperator, AssignmentOperator, EscapeSequenceFormatter);
