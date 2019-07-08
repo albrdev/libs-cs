@@ -116,7 +116,7 @@ namespace Libs.Text.Parsing
 
         public void ClearAssignedVariables() => m_AssignedVariables.Clear();
 
-        private object PopArgument(Stack<object> stack)
+        private object PopValue(Stack<object> stack)
         {
             var result = stack.Pop();
             return result is Variable tmp ? tmp.Value ?? throw new NameException($@"Use of unassigned variable") { Name = tmp.Identifier } : result;
@@ -369,7 +369,7 @@ namespace Libs.Text.Parsing
                     if(stack.Count < 1)
                         throw new NameException("Not enough unary operator arguments") { Name = op.Identifier.ToString() };
 
-                    object a = PopArgument(stack);
+                    object a = PopValue(stack);
                     if(current == AssignmentOperator)
                     {
                         if(stack.Count < 1)
@@ -392,8 +392,8 @@ namespace Libs.Text.Parsing
                     if(stack.Count < 2)
                         throw new NameException("Not enough binary operator arguments") { Name = ((BinaryOperator)current).Identifier };
 
-                    object b = PopArgument(stack);
-                    object a = PopArgument(stack);
+                    object b = PopValue(stack);
+                    object a = PopValue(stack);
                     object tmp = ((BinaryOperator)current).Callback(a, b);
                     stack.Push(tmp);
                 }
@@ -408,7 +408,7 @@ namespace Libs.Text.Parsing
 
                     for(int i = 0; i < function.ArgumentCount; i++)
                     {
-                        args.Add(PopArgument(stack));
+                        args.Add(PopValue(stack));
                     }
 
                     args.Reverse();
@@ -419,7 +419,7 @@ namespace Libs.Text.Parsing
             if(stack.Count > 1)
                 throw new SyntaxException("Too many value tokens provided");
 
-            return PopArgument(stack);
+            return PopValue(stack);
         }
 
         public object Evaluate(string expression, params (string Identifier, object Value)[] variables)

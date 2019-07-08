@@ -13,7 +13,7 @@ namespace Libs.Text.Formatting
             None,
             Value,
             ConcatenationOperator,
-            Symbol,
+            Identifier,
             OpeningBracket,
             ClosingBracket,
             ArgumentSeparator,
@@ -134,7 +134,7 @@ namespace Libs.Text.Formatting
                     else if(IsIdentifier(Current))
                     {
                         CurrentToken.Object = ExtractIdentifier();
-                        CurrentToken.Type = TokenType.Symbol;
+                        CurrentToken.Type = TokenType.Identifier;
                     }
 
                     return;
@@ -161,7 +161,7 @@ namespace Libs.Text.Formatting
                 NextToken();
                 return node;
             }
-            else if(CurrentToken.Type == TokenType.Symbol)
+            else if(CurrentToken.Type == TokenType.Identifier)
             {
                 string identifier = (string)CurrentToken.Object;
 
