@@ -226,29 +226,20 @@ namespace Libs.Text.Parsing
                     }
                     else
                     {
-                        Variable variable;
                         if(AssignmentOperator != null && (State && Current == AssignmentOperator.Identifier))
                         {
                             if(Variables != null && Variables.ContainsKey(identifier))
                                 throw new NameException($@"Assignment of reserved variable") { Name = identifier, Position = Position - identifier.Length };
-
-                            if(!m_AssignedVariables.TryGetValue(identifier, out variable))
-                            {
-                                variable = new Variable(identifier);
-                                m_AssignedVariables[variable.Identifier] = variable;
-                            }
                         }
-                        else
+
+                        if(Variables == null || !Variables.TryGetValue(identifier, out var variable))
                         {
-                            if(Variables == null || !Variables.TryGetValue(identifier, out variable))
+                            if(m_TemporaryVariables == null || !m_TemporaryVariables.TryGetValue(identifier, out variable))
                             {
-                                if(m_TemporaryVariables == null || !m_TemporaryVariables.TryGetValue(identifier, out variable))
+                                if(!m_AssignedVariables.TryGetValue(identifier, out variable))
                                 {
-                                    if(!m_AssignedVariables.TryGetValue(identifier, out variable))
-                                    {
-                                        variable = new Variable(identifier);
-                                        m_AssignedVariables[variable.Identifier] = variable;
-                                    }
+                                    variable = new Variable(identifier);
+                                    m_AssignedVariables[variable.Identifier] = variable;
                                 }
                             }
                         }
