@@ -406,6 +406,18 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
+        [Fact] // lol = 0
+        public void Arithmetic_33()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"lol = 0");
+            int cmp = 0;
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
         [Fact] // 1 + 0 * 1
         public void Bitwise_01()
         {
