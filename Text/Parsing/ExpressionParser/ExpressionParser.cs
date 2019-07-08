@@ -122,6 +122,12 @@ namespace Libs.Text.Parsing
             return result is string && EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape((string)result) : result;
         }
 
+        private object PopArgument2(Stack<object> stack)
+        {
+            var result = PopArgument(stack);
+            return result is Variable tmp ? tmp.Value ?? throw new NameException($@"Use of unassigned variable") { Name = tmp.Identifier } : result;
+        }
+
         private Queue<object> ProcessParsing()
         {
             Queue<object> output = new Queue<object>();
@@ -225,32 +231,37 @@ namespace Libs.Text.Parsing
                     }
                     else
                     {
+                        Variable variable;
                         if(AssignmentOperator != null && (State && Current == AssignmentOperator.Identifier))
                         {
                             if(Variables != null && Variables.ContainsKey(identifier))
                                 throw new NameException($@"Assignment of reserved variable") { Name = identifier, Position = Position - identifier.Length };
 
-                            var tmp = new Variable(identifier);
-                            m_AssignedVariables[tmp.Identifier] = tmp;
-
-                            lastToken = tmp;
-                            output.Enqueue(lastToken);
+                            if(!m_AssignedVariables.TryGetValue(identifier, out variable))
+                            {
+                                variable = new Variable(identifier);
+                                m_AssignedVariables[variable.Identifier] = variable;
+                            }
                         }
                         else
                         {
-                            if(Variables == null || !Variables.TryGetValue(identifier, out var variable))
+                            if(Variables == null || !Variables.TryGetValue(identifier, out variable))
                             {
                                 if(m_TemporaryVariables == null || !m_TemporaryVariables.TryGetValue(identifier, out variable))
                                 {
                                     if(!m_AssignedVariables.TryGetValue(identifier, out variable))
-                                        throw new NameException($@"Unknown variable") { Name = identifier, Position = Position - identifier.Length };
+                                    {
+                                        variable = new Variable(identifier);
+                                        m_AssignedVariables[variable.Identifier] = variable;
+                                    }
+                                    //if(!m_AssignedVariables.TryGetValue(identifier, out variable))
+                                    //    throw new NameException($@"Unknown variable") { Name = identifier, Position = Position - identifier.Length };
                                 }
                             }
-
-                            lastToken = variable;
-                            output.Enqueue(lastToken);
                         }
 
+                        lastToken = variable;
+                        output.Enqueue(lastToken);
                     }
                 }
                 else
@@ -366,21 +377,16 @@ namespace Libs.Text.Parsing
             while(postfix.Count > 0)
             {
                 object current = postfix.Dequeue();
-                if(IsValueToken(current))
+                if(IsValueToken(current) || current is Variable)
                 {
                     stack.Push(current);
-                }
-                else if(current is Variable)
-                {
-                    object value = ((Variable)current).Value;
-                    stack.Push(value ?? current);
                 }
                 else if(current is UnaryOperator op)
                 {
                     if(stack.Count < 1)
                         throw new NameException("Not enough unary operator arguments") { Name = op.Identifier.ToString() };
 
-                    object a = PopArgument(stack);
+                    object a = PopArgument2(stack);
                     if(current == AssignmentOperator)
                     {
                         if(stack.Count < 1)
@@ -403,8 +409,8 @@ namespace Libs.Text.Parsing
                     if(stack.Count < 2)
                         throw new NameException("Not enough binary operator arguments") { Name = ((BinaryOperator)current).Identifier };
 
-                    object b = PopArgument(stack);
-                    object a = PopArgument(stack);
+                    object b = PopArgument2(stack);
+                    object a = PopArgument2(stack);
                     object tmp = ((BinaryOperator)current).Callback(a, b);
                     stack.Push(tmp);
                 }
@@ -419,7 +425,7 @@ namespace Libs.Text.Parsing
 
                     for(int i = 0; i < function.ArgumentCount; i++)
                     {
-                        args.Add(PopArgument(stack));
+                        args.Add(PopArgument2(stack));
                     }
 
                     args.Reverse();
