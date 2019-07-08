@@ -381,7 +381,7 @@ namespace Libs.Text.Parsing
                         throw new NameException("Not enough unary operator arguments") { Name = op.Identifier.ToString() };
 
                     object a = PopArgument(stack);
-                    if(AssignmentOperator != null && current == AssignmentOperator)
+                    if(current == AssignmentOperator)
                     {
                         if(stack.Count < 1)
                             throw new NameException("No assignable variable provided");
