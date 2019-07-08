@@ -8,6 +8,8 @@ namespace Libs.Text.Parsing
 {
     public class ExpressionParser : ParserBase
     {
+        public delegate object NumberConvertHandler(string value);
+
         internal class FunctionParsingHelper
         {
             internal InternalFunction Function { get; private set; }
@@ -41,9 +43,16 @@ namespace Libs.Text.Parsing
         public BinaryOperator AbbreviationOperator { get; set; }
         public UnaryOperator AssignmentOperator { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
+        public NumberConvertHandler NumberConverter
+        {
+            get => m_NumberConverter;
+            set => m_NumberConverter = value ?? DefaultNumberConverter;
+        }
 
         private readonly Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
         private Dictionary<string, Variable> m_TemporaryVariables;
+        private NumberConvertHandler m_NumberConverter = DefaultNumberConverter;
+        private HashSet<System.Type> m_ValueTypes = new HashSet<Type> { typeof(int), typeof(double), typeof(string) };
 
         private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.'; }
         private static bool IsIdentifier(char value) { return char.IsLetter(value) || value == '_'; }
@@ -83,7 +92,7 @@ namespace Libs.Text.Parsing
             return result;
         }
 
-        private static object ParseNumber(string value)
+        private static object DefaultNumberConverter(string value)
         {
             try
             {
@@ -100,9 +109,9 @@ namespace Libs.Text.Parsing
             return token is char && cmp.Contains((char)token);
         }
 
-        private static bool IsValueToken(object token)
+        private bool IsValueToken(object token)
         {
-            return token is int || token is double || token is string;
+            return token != null && m_ValueTypes.Contains(token.GetType());
         }
 
         public void ClearAssignedVariables() => m_AssignedVariables.Clear();
@@ -137,7 +146,8 @@ namespace Libs.Text.Parsing
                 else if(IsNumber(Current))
                 {
                     // If the token is a number, then add it to the output queue.
-                    lastToken = ParseNumber(ExtractNumber());
+                    lastToken = NumberConverter(ExtractNumber());
+                    m_ValueTypes.Add(lastToken.GetType());
                     output.Enqueue(lastToken);
                 }
                 else if(Current == '\'' || Current == '\"')
