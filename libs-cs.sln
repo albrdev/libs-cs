@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "UnitTests\Tests.csproj", "{DE424A82-F327-42B6-A0B4-E139650100BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{DE424A82-F327-42B6-A0B4-E139650100BC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Text", "Text\Text.csproj", "{81026E9A-E528-49BA-B2CD-3BD8303ED943}"
 EndProject
