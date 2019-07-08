@@ -6,9 +6,9 @@ namespace Libs.Text.Formatting
 {
     public class FunctionNode : Evaluable
     {
-        public delegate object Evaluator(params object[] args);
+        public delegate object EvaluationHandler(params object[] args);
 
-        protected Evaluator Callback { get; set; }
+        protected EvaluationHandler Callback { get; set; }
         protected List<Evaluable> Arguments { get; set; } = new List<Evaluable>();
 
         protected IEnumerable<object> EvaluateArguments
@@ -42,14 +42,14 @@ namespace Libs.Text.Formatting
             Arguments.Add(argument);
         }
 
-        internal FunctionNode(Evaluator callback, params Evaluable[] arguments) : this(callback, (IEnumerable<Evaluable>)arguments) { }
+        internal FunctionNode(EvaluationHandler callback, params Evaluable[] arguments) : this(callback, (IEnumerable<Evaluable>)arguments) { }
 
-        internal FunctionNode(Evaluator callback, IEnumerable<Evaluable> arguments) : this(callback)
+        internal FunctionNode(EvaluationHandler callback, IEnumerable<Evaluable> arguments) : this(callback)
         {
             Arguments = new List<Evaluable>(arguments);
         }
 
-        internal FunctionNode(Evaluator callback)
+        internal FunctionNode(EvaluationHandler callback)
         {
             Callback = callback;
         }

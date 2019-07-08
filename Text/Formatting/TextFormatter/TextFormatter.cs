@@ -38,7 +38,7 @@ namespace Libs.Text.Formatting
         }
 
         public IDictionary<string, object> Variables { get; set; }
-        public IDictionary<string, FunctionNode.Evaluator> Functions { get; set; }
+        public IDictionary<string, FunctionNode.EvaluationHandler> Functions { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
 
         private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.' || value == '-'; }
@@ -168,10 +168,10 @@ namespace Libs.Text.Formatting
                 NextToken();
                 if(CurrentToken.Type == TokenType.OpeningBracket)
                 {
-                    if(Functions == null || !Functions.TryGetValue(identifier, out FunctionNode.Evaluator callback))
+                    if(Functions == null || !Functions.TryGetValue(identifier, out FunctionNode.EvaluationHandler callback))
                         throw new NameException($@"Unknown function") { Name = identifier, Position = Position - identifier.Length };
 
-                    FunctionNode function = new FunctionNode((FunctionNode.Evaluator)callback);
+                    FunctionNode function = new FunctionNode((FunctionNode.EvaluationHandler)callback);
 
                     NextToken();
                     while(CurrentToken.Type != TokenType.ClosingBracket && CurrentToken.Type != TokenType.None)
@@ -280,7 +280,7 @@ namespace Libs.Text.Formatting
             return result;
         }
 
-        public TextFormatter(char qualifier, IDictionary<string, object> variables, IDictionary<string, FunctionNode.Evaluator> functions, EscapeSequenceFormatter escapeSequenceFormatter = null)
+        public TextFormatter(char qualifier, IDictionary<string, object> variables, IDictionary<string, FunctionNode.EvaluationHandler> functions, EscapeSequenceFormatter escapeSequenceFormatter = null)
         {
             Qualifier = qualifier;
 

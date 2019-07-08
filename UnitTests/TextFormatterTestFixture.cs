@@ -47,7 +47,7 @@ namespace UnitTests
             { "pi", Math.PI }
         };
 
-        private static Dictionary<string, FunctionNode.Evaluator> m_Functions = new Dictionary<string, FunctionNode.Evaluator>
+        private static Dictionary<string, FunctionNode.EvaluationHandler> m_Functions = new Dictionary<string, FunctionNode.EvaluationHandler>
         {
             { "sum",  Sum },
             { "strlen",  StringLength },
@@ -66,7 +66,7 @@ namespace UnitTests
             {
                 { "pi", Math.PI }
             };
-            m_Functions = new Dictionary<string, FunctionNode.Evaluator>
+            m_Functions = new Dictionary<string, FunctionNode.EvaluationHandler>
             {
                 { "sum",  Sum },
                 { "strlen",  StringLength },
