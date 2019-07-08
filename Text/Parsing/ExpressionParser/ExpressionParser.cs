@@ -167,25 +167,20 @@ namespace Libs.Text.Parsing
                     }
                     else if(lastToken == null || lastToken is Operator || IsCharToken(lastToken, '(', ','))
                     {
-                        if(UnaryOperators.TryGetValue(Current, out var op))
-                        {
-                            lastToken = op;
-                        }
-                        else
+                        if(!UnaryOperators.TryGetValue(Current, out var op))
                             throw new NameException($@"Invalid unary operator") { Name = Current.ToString(), Position = Position };
 
+                        lastToken = op;
                         Next();
                     }
                     else
                     {
                         string identifier = Next(1);
                         identifier += Next((character) => binOps.Contains(character) && !unOps.Contains(character));
-                        if(BinaryOperators.TryGetValue(identifier, out var op))
-                        {
-                            lastToken = op;
-                        }
-                        else
+                        if(!BinaryOperators.TryGetValue(identifier, out var op))
                             throw new NameException($@"Invalid binary operator") { Name = identifier, Position = Position - identifier.Length };
+
+                        lastToken = op;
                     }
 
                     // If the token is an operator, o_1, then:
@@ -221,14 +216,12 @@ namespace Libs.Text.Parsing
                     if(State && Current == '(')
                     {
                         // If the token is a function token, then push it onto the stack.
-                        if(Functions != null && Functions.TryGetValue(identifier, out var function))
-                        {
-                            lastToken = new InternalFunction(function);
-                            functions.Push(new FunctionParsingHelper((InternalFunction)lastToken));
-                            stack.Push(lastToken);
-                        }
-                        else
+                        if(Functions == null || !Functions.TryGetValue(identifier, out var function))
                             throw new NameException($@"Unknown function") { Name = identifier, Position = Position - identifier.Length };
+
+                        lastToken = new InternalFunction(function);
+                        functions.Push(new FunctionParsingHelper((InternalFunction)lastToken));
+                        stack.Push(lastToken);
                     }
                     else
                     {
