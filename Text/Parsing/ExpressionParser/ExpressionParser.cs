@@ -52,7 +52,7 @@ namespace Libs.Text.Parsing
         private readonly Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
         private Dictionary<string, Variable> m_TemporaryVariables;
         private NumberConvertHandler m_NumberConverter = DefaultNumberConverter;
-        private HashSet<System.Type> m_ValueTypes = new HashSet<Type> { typeof(int), typeof(double), typeof(string) };
+        private readonly HashSet<System.Type> m_ValueTypes = new HashSet<Type> { typeof(int), typeof(double), typeof(string) };
 
         private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.'; }
         private static bool IsIdentifier(char value) { return char.IsLetter(value) || value == '_'; }
@@ -249,8 +249,6 @@ namespace Libs.Text.Parsing
                                         variable = new Variable(identifier);
                                         m_AssignedVariables[variable.Identifier] = variable;
                                     }
-                                    //if(!m_AssignedVariables.TryGetValue(identifier, out variable))
-                                    //    throw new NameException($@"Unknown variable") { Name = identifier, Position = Position - identifier.Length };
                                 }
                             }
                         }
