@@ -418,6 +418,78 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
+        [Fact] // 2min(2, 1, 3)
+        public void Arithmetic_34()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"2min(2, 1, 3)");
+            double cmp = 2 * (double)ExpressionParserTestFixture.Min(2, 1, 3);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // 2math.pi
+        public void Arithmetic_35()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"2math.pi");
+            double cmp = 2 * System.Convert.ToDouble(m_Fixture.ArithmeticVariables["math.pi"].Value);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // (1 + 1)3
+        public void Arithmetic_36()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"(1 + 1)3");
+            double cmp = (1 + 1) * 3;
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // min(2, 1, 3)3
+        public void Arithmetic_37()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"min(2, 1, 3)3");
+            double cmp = (double)ExpressionParserTestFixture.Min(2, 1, 3) * 3;
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // (1 + 1)math.pi
+        public void Arithmetic_38()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"(1 + 1)math.pi");
+            double cmp = (1 + 1) * System.Convert.ToDouble(m_Fixture.ArithmeticVariables["math.pi"].Value);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // min(2, 1, 3)max(2, 3, 1)
+        public void Arithmetic_39()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"min(2, 1, 3)max(2, 3, 1)");
+            double cmp = (double)ExpressionParserTestFixture.Min(2, 1, 3) * (double)ExpressionParserTestFixture.Max(2, 3, 1);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
         [Fact] // 1 + 0 * 1
         public void Bitwise_01()
         {
