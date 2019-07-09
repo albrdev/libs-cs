@@ -145,6 +145,11 @@ namespace Libs.Text.Parsing
                 }
                 else if(IsNumber(Current))
                 {
+                    if(AbbreviationOperator != null && IsCharToken(lastToken, ')'))
+                    {
+                        stack.Push(AbbreviationOperator);
+                    }
+
                     // If the token is a number, then add it to the output queue.
                     lastToken = NumberConverter(ExtractNumber());
                     m_ValueTypes.Add(lastToken.GetType());
@@ -204,13 +209,12 @@ namespace Libs.Text.Parsing
                 }
                 else if(IsIdentifier(Current))
                 {
-                    string identifier = ExtractIdentifier();
-
-                    if(AbbreviationOperator != null && IsValueToken(lastToken))
+                    if(AbbreviationOperator != null && (IsValueToken(lastToken) || IsCharToken(lastToken, ')')))
                     {
                         stack.Push(AbbreviationOperator);
                     }
 
+                    string identifier = ExtractIdentifier();
                     Skip(char.IsWhiteSpace);
 
                     if(State && Current == '(')
