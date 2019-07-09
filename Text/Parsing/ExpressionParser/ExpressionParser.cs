@@ -252,12 +252,9 @@ namespace Libs.Text.Parsing
                     switch(Current)
                     {
                         case '(':
-                            if(IsValueToken(lastToken))
+                            if(AbbreviationOperator != null && IsValueToken(lastToken))
                             {
-                                if(AbbreviationOperator != null && IsValueToken(lastToken))
-                                {
-                                    stack.Push(AbbreviationOperator);
-                                }
+                                stack.Push(AbbreviationOperator);
                             }
 
                             if(functions.Count > 0)
