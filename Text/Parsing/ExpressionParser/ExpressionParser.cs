@@ -345,7 +345,7 @@ namespace Libs.Text.Parsing
             {
                 var top = stack.Pop();
                 // If the operator token on the top of the stack is a parenthesis, then there are mismatched parentheses.
-                if(!(top is Operator)) throw new SyntaxException("No matching right parenthesis");
+                if(!(top is Operator)) throw new SyntaxException("Missing matching closing bracket");
 
                 // Pop the operator onto the output queue.
                 output.Enqueue(top);
