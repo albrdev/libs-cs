@@ -1,4 +1,5 @@
 ########## Custom ##########
+**/Properties/launchSettings.json
 
 ########## VisualStudio.gitignore ##########
 ## Ignore Visual Studio temporary files, build results, and
