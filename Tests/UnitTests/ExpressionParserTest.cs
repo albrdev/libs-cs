@@ -5,7 +5,7 @@ using UnitTests.TestPriority;
 
 namespace UnitTests
 {
-    [TestCaseOrderer("UnitTests.TestPriority.PriorityOrderer", "Tests")]
+    [TestCaseOrderer("UnitTests.TestPriority.PriorityOrderer", "UnitTests")]
     public class ExpressionParserTest : IClassFixture<ExpressionParserTestFixture>
     {
         private readonly ITestOutputHelper m_Output;
