@@ -19,10 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Collections\Collections.csproj" />
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Extensions\Extensions.csproj" />
-    <ProjectReference Include="..\Text\Text.csproj" />
+    <ProjectReference Include="..\Libs\Collections\Collections.csproj" />
+    <ProjectReference Include="..\Libs\Core\Core.csproj" />
+    <ProjectReference Include="..\Libs\Extensions\Extensions.csproj" />
+    <ProjectReference Include="..\Libs\Misc\Misc.csproj" />
+    <ProjectReference Include="..\Libs\Text\Text.csproj" />
   </ItemGroup>
 
 </Project>
