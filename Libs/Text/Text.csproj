@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Libs.Text</AssemblyName>
+    <RootNamespace>Libs.Text</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

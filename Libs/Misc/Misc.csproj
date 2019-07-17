@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Libs.Misc</AssemblyName>
+    <RootNamespace>Libs.Misc</RootNamespace>
   </PropertyGroup>
 
 </Project>
