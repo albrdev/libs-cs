@@ -40,7 +40,7 @@ namespace Libs.Text.Parsing
         public IDictionary<string, BinaryOperator> BinaryOperators { get; set; }
         public IDictionary<string, Variable> Variables { get; set; }
         public IDictionary<string, Function> Functions { get; set; }
-        public BinaryOperator AbbreviationOperator { get; set; }
+        public BinaryOperator ShorthandOperator { get; set; }
         public UnaryOperator AssignmentOperator { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
         public NumberConvertHandler NumberConverter
@@ -145,9 +145,9 @@ namespace Libs.Text.Parsing
                 }
                 else if(IsNumber(Current))
                 {
-                    if(AbbreviationOperator != null && IsCharToken(lastToken, ')'))
+                    if(ShorthandOperator != null && IsCharToken(lastToken, ')'))
                     {
-                        stack.Push(AbbreviationOperator);
+                        stack.Push(ShorthandOperator);
                     }
 
                     // If the token is a number, then add it to the output queue.
@@ -209,9 +209,9 @@ namespace Libs.Text.Parsing
                 }
                 else if(IsIdentifier(Current))
                 {
-                    if(AbbreviationOperator != null && (IsValueToken(lastToken) || IsCharToken(lastToken, ')')))
+                    if(ShorthandOperator != null && (IsValueToken(lastToken) || IsCharToken(lastToken, ')')))
                     {
-                        stack.Push(AbbreviationOperator);
+                        stack.Push(ShorthandOperator);
                     }
 
                     string identifier = ExtractIdentifier();
@@ -256,9 +256,9 @@ namespace Libs.Text.Parsing
                     switch(Current)
                     {
                         case '(':
-                            if(AbbreviationOperator != null && IsValueToken(lastToken))
+                            if(ShorthandOperator != null && IsValueToken(lastToken))
                             {
-                                stack.Push(AbbreviationOperator);
+                                stack.Push(ShorthandOperator);
                             }
 
                             if(functions.Count > 0)
@@ -463,7 +463,7 @@ namespace Libs.Text.Parsing
             return result;
         }
 
-        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, Variable> variables, IDictionary<string, Function> functions, BinaryOperator abbreviationOperator = null, UnaryOperator assignmentOperator = null, EscapeSequenceFormatter escapeSequenceFormatter = null)
+        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, Variable> variables, IDictionary<string, Function> functions, BinaryOperator shorthandOperator = null, UnaryOperator assignmentOperator = null, EscapeSequenceFormatter escapeSequenceFormatter = null)
         {
             UnaryOperators = unaryOperators;
             BinaryOperators = binaryOperators;
@@ -471,7 +471,7 @@ namespace Libs.Text.Parsing
             Variables = variables;
             Functions = functions;
 
-            AbbreviationOperator = abbreviationOperator;
+            ShorthandOperator = shorthandOperator;
             AssignmentOperator = assignmentOperator;
             EscapeSequenceFormatter = escapeSequenceFormatter;
         }
