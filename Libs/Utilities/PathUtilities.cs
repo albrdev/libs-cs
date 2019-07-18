@@ -1,16 +1,19 @@
 ﻿using System;
 using System.IO;
 
-public static class PathUtilities
+namespace Libs.Utilities
 {
-    public static string FullPath(params string[] subPaths)
+    public static class PathUtilities
     {
-        string result = string.Empty;
-        foreach(var subPath in subPaths)
+        public static string FullPath(params string[] subPaths)
         {
-            result = Path.Combine(result, subPath);
-        }
+            string result = string.Empty;
+            foreach(var subPath in subPaths)
+            {
+                result = Path.Combine(result, subPath);
+            }
 
-        return result;
+            return result;
+        }
     }
 }
