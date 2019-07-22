@@ -11,7 +11,7 @@ namespace Libs.Text.Parsing
     {
         public delegate object CommandHandler(params string[] args);
 
-        private Dictionary<string, CommandHandler> m_Commands = new Dictionary<string, CommandHandler>();
+        private readonly Dictionary<string, CommandHandler> m_Commands = new Dictionary<string, CommandHandler>();
 
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
 
