@@ -17,15 +17,9 @@ namespace Libs
             }
         }
 
-        public virtual string AffixMessage
-        {
-            get { return null; }
-        }
+        public virtual string AffixMessage { get { return null; } }
 
-        public virtual IEnumerable<string> GetAffixMessages()
-        {
-            yield return null;
-        }
+        public virtual IEnumerable<string> GetAffixMessages() { yield return null; }
 
         public ExceptionBase() : base() { }
 
