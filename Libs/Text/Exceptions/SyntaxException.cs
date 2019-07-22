@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace Libs.Text
 {
@@ -22,10 +23,26 @@ namespace Libs.Text
 
         public SyntaxException() : base() { }
 
+        public SyntaxException(int position) : base() { Position = position; }
+
         public SyntaxException(string message) : base(message) { }
+
+        public SyntaxException(string message, int position) : base(message) { Position = position; }
 
         public SyntaxException(string message, Exception innerException) : base(message, innerException) { }
 
+        public SyntaxException(string message, Exception innerException, int position) : base(message, innerException) { Position = position; }
+
         protected SyntaxException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if(info == null)
+                throw new ArgumentNullException();
+
+            info.AddValue("Position", Position);
+            base.GetObjectData(info, context);
+        }
     }
 }
