@@ -42,7 +42,7 @@ namespace Libs.Text.Parsing
         public IDictionary<string, Variable> Variables { get; set; }
         public IDictionary<string, Function> Functions { get; set; }
         public BinaryOperator ShorthandOperator { get; set; }
-        public UnaryOperator AssignmentOperator { get; set; }
+        public BinaryOperator AssignmentOperator { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
         public NumberConvertHandler NumberConverter
         {
@@ -172,15 +172,7 @@ namespace Libs.Text.Parsing
                 }
                 else if(binOps.Contains(Current) || unOps.Contains(Current))
                 {
-                    if(AssignmentOperator != null && Current == AssignmentOperator.Identifier)
-                    {
-                        if(!(lastToken is Variable))
-                            throw new SyntaxException($@"Assignment of non-variable", Position);
-
-                        lastToken = AssignmentOperator;
-                        Next();
-                    }
-                    else if(lastToken == null || lastToken is Operator || IsCharToken(lastToken, '(', ','))
+                    if(lastToken == null || lastToken is Operator || IsCharToken(lastToken, '(', ','))
                     {
                         if(!UnaryOperators.TryGetValue(Current, out var op))
                             throw new SyntaxException($@"Invalid unary operator '{Current}'", Position);
@@ -192,10 +184,18 @@ namespace Libs.Text.Parsing
                     {
                         string identifier = Next(1);
                         identifier += Next((character) => binOps.Contains(character) && !unOps.Contains(character));
-                        if(!BinaryOperators.TryGetValue(identifier, out var op))
-                            throw new SyntaxException($@"Invalid binary operator '{identifier}'", Position - identifier.Length);
 
-                        lastToken = op;
+                        if(AssignmentOperator != null && identifier == AssignmentOperator.Identifier)
+                        {
+                            lastToken = AssignmentOperator;
+                        }
+                        else
+                        {
+                            if(!BinaryOperators.TryGetValue(identifier, out var op))
+                                throw new SyntaxException($@"Invalid binary operator '{identifier}'", Position - identifier.Length);
+
+                            lastToken = op;
+                        }
                     }
 
                     // If the token is an operator, o_1, then:
@@ -239,12 +239,6 @@ namespace Libs.Text.Parsing
                     }
                     else
                     {
-                        if(AssignmentOperator != null && (State && Current == AssignmentOperator.Identifier))
-                        {
-                            if(Variables != null && Variables.ContainsKey(identifier))
-                                throw new SyntaxException($@"Assignment of reserved variable '{identifier}'", Position - identifier.Length);
-                        }
-
                         if(Variables == null || !Variables.TryGetValue(identifier, out var variable))
                         {
                             if(m_TemporaryVariables == null || !m_TemporaryVariables.TryGetValue(identifier, out variable))
@@ -381,22 +375,7 @@ namespace Libs.Text.Parsing
                         throw new SyntaxException($@"Insufficient arguments unary operator '{unOp.Identifier}'");
 
                     object a = PopValue(stack);
-                    if(current == AssignmentOperator)
-                    {
-                        if(stack.Count < 1)
-                            throw new SyntaxException($@"No assignable variable provided");
-
-                        object b = stack.Pop();
-                        if(!(b is Variable variable))
-                            throw new SyntaxException($@"Token is not of variable type ('{b.GetType().Name}')");
-
-                        variable.Value = unOp.Callback(a);
-                        stack.Push(variable.Value);
-                    }
-                    else
-                    {
-                        stack.Push(unOp.Callback(a));
-                    }
+                    stack.Push(unOp.Callback(a));
                 }
                 else if(current is BinaryOperator binOp)
                 {
@@ -404,7 +383,20 @@ namespace Libs.Text.Parsing
                         throw new SyntaxException($@"Insufficient arguments for binary operator '{binOp.Identifier}'");
 
                     object b = PopValue(stack);
-                    object a = PopValue(stack);
+                    object a;
+                    if(current == AssignmentOperator)
+                    {
+                        a = stack.Pop();
+                        if(!(a is Variable variable))
+                            throw new SyntaxException($@"Assignment of non-variable type ('{a.GetType().Name}')");
+                        else if(Variables != null && Variables.ContainsKey(variable.Identifier))
+                            throw new SyntaxException($@"Assignment of reserved variable '{variable.Identifier}'");
+                    }
+                    else
+                    {
+                        a = PopValue(stack);
+                    }
+
                     stack.Push(binOp.Callback(a, b));
                 }
                 else if(current is InternalFunction function)
@@ -472,7 +464,7 @@ namespace Libs.Text.Parsing
             return result;
         }
 
-        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, Variable> variables, IDictionary<string, Function> functions, BinaryOperator shorthandOperator = null, UnaryOperator assignmentOperator = null, EscapeSequenceFormatter escapeSequenceFormatter = null)
+        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, Variable> variables, IDictionary<string, Function> functions, BinaryOperator shorthandOperator = null, BinaryOperator assignmentOperator = null, EscapeSequenceFormatter escapeSequenceFormatter = null)
         {
             UnaryOperators = unaryOperators;
             BinaryOperators = binaryOperators;

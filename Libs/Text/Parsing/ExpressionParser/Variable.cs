@@ -11,7 +11,7 @@ namespace Libs.Text.Parsing
         public virtual object Value
         {
             get { return m_Value; }
-            internal set { m_Value = value; }
+            set { m_Value = value; }
         }
 
         public static implicit operator Variable((string Identifier, object Value) value)
