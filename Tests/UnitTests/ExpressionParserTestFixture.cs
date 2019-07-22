@@ -5,12 +5,13 @@ using Libs.Collections;
 using Libs.Text.Parsing;
 using static Libs.Text.Parsing.Operator;
 using Libs.Text.Formatting;
+using Libs.Text;
 
 namespace UnitTests
 {
     public class ExpressionParserTestFixture : IDisposable
     {
-        public UnaryOperator AssignmentOperator { get; private set; }
+        public BinaryOperator AssignmentOperator { get; private set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; private set; }
         public List<object> ResultVariables { get; private set; }
 
@@ -116,7 +117,7 @@ namespace UnitTests
 
         public ExpressionParserTestFixture()
         {
-            AssignmentOperator = ('=', 1, AssociativityType.Right, (value) => value);
+            AssignmentOperator = ("=", 1, AssociativityType.Right, (lhs, rhs) => (((Variable)lhs).Value = rhs));
             EscapeSequenceFormatter = new ExtendedNativeEscapeSequenceFormatter();
             ResultVariables = new List<object>();
 
