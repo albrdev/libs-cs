@@ -64,7 +64,7 @@ namespace Libs.Text.Formatting
             });
 
             if(Current != delimiter)
-                throw new SyntaxException($@"Missing matching closing quote") { Position = Position - (result.Length + 1) };
+                throw new SyntaxException($@"Missing matching closing quote", Position - (result.Length + 1));
 
             Next();
             return EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape(result) : result;
@@ -74,7 +74,7 @@ namespace Libs.Text.Formatting
         {
             string result = Next(IsIdentifier2);
             if(result.Length == 0)
-                throw new NameException($@"Empty identifier") { Position = Position };
+                throw new SyntaxException($@"Empty identifier", Position);
 
             return result;
         }
@@ -169,7 +169,7 @@ namespace Libs.Text.Formatting
                 if(CurrentToken.Type == TokenType.OpeningBracket)
                 {
                     if(Functions == null || !Functions.TryGetValue(identifier, out FunctionNode.EvaluationHandler callback))
-                        throw new NameException($@"Unknown function") { Name = identifier, Position = Position - identifier.Length };
+                        throw new SyntaxException($@"Unknown function '{identifier}'", Position - identifier.Length);
 
                     FunctionNode function = new FunctionNode((FunctionNode.EvaluationHandler)callback);
 
@@ -193,7 +193,7 @@ namespace Libs.Text.Formatting
                 else
                 {
                     if(Variables == null || !Variables.TryGetValue(identifier, out object value))
-                        throw new NameException($@"Unknown variable") { Name = identifier, Position = Position - identifier.Length };
+                        throw new SyntaxException($@"Unknown variable '{identifier}'", Position - identifier.Length);
 
                     return new ValueNode(value);
                 }

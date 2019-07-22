@@ -48,7 +48,7 @@ namespace Libs.Text.Parsing
             });
 
             if(Current != delimiter)
-                throw new SyntaxException($@"Missing matching closing quote") { Position = Position - (result.Length + 1) };
+                throw new SyntaxException($@"Missing matching closing quote", Position - (result.Length + 1));
 
             Next();
             return EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape(result) : result;
@@ -77,10 +77,10 @@ namespace Libs.Text.Parsing
         {
             string identifier = ExtractIdentifier();
             if(string.IsNullOrEmpty(identifier))
-                throw new NameException($@"No command specified");
+                throw new SyntaxException($@"No command specified");
 
             if(!m_Commands.TryGetValue(identifier, out var handler))
-                throw new NameException($@"Command not found") { Name = identifier };
+                throw new SyntaxException($@"Command not found: '{identifier}'");
 
             return handler(ParseArguments().ToArray());
         }

@@ -79,7 +79,7 @@ namespace Libs.Text.Parsing
             });
 
             if(Current != delimiter)
-                throw new SyntaxException($@"Missing matching closing quote") { Position = Position - (result.Length + 1) };
+                throw new SyntaxException($@"Missing matching closing quote", Position - (result.Length + 1));
 
             Next();
             return EscapeSequenceFormatter != null ? EscapeSequenceFormatter.Unescape(result) : result;
@@ -89,7 +89,7 @@ namespace Libs.Text.Parsing
         {
             string result = Next(IsIdentifier2);
             if(result.Length == 0)
-                throw new NameException($@"Empty identifier") { Position = Position };
+                throw new SyntaxException($@"Empty identifier", Position);
 
             return result;
         }
@@ -124,7 +124,7 @@ namespace Libs.Text.Parsing
             if(result is Variable tmp)
             {
                 if(tmp.Value is null)
-                    throw new NameException($@"Use of unassigned variable") { Name = tmp.Identifier };
+                    throw new SyntaxException($@"Use of unassigned variable '{tmp.Identifier}'");
 
                 result = tmp.Value;
             }
@@ -175,7 +175,7 @@ namespace Libs.Text.Parsing
                     if(AssignmentOperator != null && Current == AssignmentOperator.Identifier)
                     {
                         if(!(lastToken is Variable))
-                            throw new SyntaxException($@"Assignment of non-variable") { Position = Position };
+                            throw new SyntaxException($@"Assignment of non-variable", Position);
 
                         lastToken = AssignmentOperator;
                         Next();
@@ -183,7 +183,7 @@ namespace Libs.Text.Parsing
                     else if(lastToken == null || lastToken is Operator || IsCharToken(lastToken, '(', ','))
                     {
                         if(!UnaryOperators.TryGetValue(Current, out var op))
-                            throw new NameException($@"Invalid unary operator") { Name = Current.ToString(), Position = Position };
+                            throw new SyntaxException($@"Invalid unary operator '{Current}'", Position);
 
                         lastToken = op;
                         Next();
@@ -193,7 +193,7 @@ namespace Libs.Text.Parsing
                         string identifier = Next(1);
                         identifier += Next((character) => binOps.Contains(character) && !unOps.Contains(character));
                         if(!BinaryOperators.TryGetValue(identifier, out var op))
-                            throw new NameException($@"Invalid binary operator") { Name = identifier, Position = Position - identifier.Length };
+                            throw new SyntaxException($@"Invalid binary operator '{identifier}'", Position - identifier.Length);
 
                         lastToken = op;
                     }
@@ -231,7 +231,7 @@ namespace Libs.Text.Parsing
                     {
                         // If the token is a function token, then push it onto the stack.
                         if(Functions == null || !Functions.TryGetValue(identifier, out var function))
-                            throw new NameException($@"Unknown function") { Name = identifier, Position = Position - identifier.Length };
+                            throw new SyntaxException($@"Unknown function '{identifier}'", Position - identifier.Length);
 
                         lastToken = new InternalFunction(function);
                         functions.Push(new FunctionParsingHelper((InternalFunction)lastToken));
@@ -242,7 +242,7 @@ namespace Libs.Text.Parsing
                         if(AssignmentOperator != null && (State && Current == AssignmentOperator.Identifier))
                         {
                             if(Variables != null && Variables.ContainsKey(identifier))
-                                throw new NameException($@"Assignment of reserved variable") { Name = identifier, Position = Position - identifier.Length };
+                                throw new SyntaxException($@"Assignment of reserved variable '{identifier}'", Position - identifier.Length);
                         }
 
                         if(Variables == null || !Variables.TryGetValue(identifier, out var variable))
@@ -355,7 +355,7 @@ namespace Libs.Text.Parsing
             {
                 var top = stack.Pop();
                 // If the operator token on the top of the stack is a parenthesis, then there are mismatched parentheses.
-                if(!(top is Operator)) throw new SyntaxException("Missing matching closing bracket");
+                if(!(top is Operator)) throw new SyntaxException($@"Missing matching closing bracket");
 
                 // Pop the operator onto the output queue.
                 output.Enqueue(top);
@@ -375,47 +375,46 @@ namespace Libs.Text.Parsing
                 {
                     stack.Push(current);
                 }
-                else if(current is UnaryOperator op)
+                else if(current is UnaryOperator unOp)
                 {
                     if(stack.Count < 1)
-                        throw new NameException("Not enough unary operator arguments") { Name = op.Identifier.ToString() };
+                        throw new SyntaxException($@"Insufficient arguments unary operator '{unOp.Identifier}'");
 
                     object a = PopValue(stack);
                     if(current == AssignmentOperator)
                     {
                         if(stack.Count < 1)
-                            throw new NameException("No assignable variable provided");
+                            throw new SyntaxException($@"No assignable variable provided");
 
                         object b = stack.Pop();
                         if(!(b is Variable variable))
-                            throw new NameException("Token is not of variable type") { Name = b.GetType().Name };
+                            throw new SyntaxException($@"Token is not of variable type ('{b.GetType().Name}')");
 
-                        variable.Value = op.Callback(a);
+                        variable.Value = unOp.Callback(a);
                         stack.Push(variable.Value);
                     }
                     else
                     {
-                        stack.Push(op.Callback(a));
+                        stack.Push(unOp.Callback(a));
                     }
                 }
-                else if(current is BinaryOperator)
+                else if(current is BinaryOperator binOp)
                 {
                     if(stack.Count < 2)
-                        throw new NameException("Not enough binary operator arguments") { Name = ((BinaryOperator)current).Identifier };
+                        throw new SyntaxException($@"Insufficient arguments for binary operator '{binOp.Identifier}'");
 
                     object b = PopValue(stack);
                     object a = PopValue(stack);
-                    object tmp = ((BinaryOperator)current).Callback(a, b);
-                    stack.Push(tmp);
+                    stack.Push(binOp.Callback(a, b));
                 }
                 else if(current is InternalFunction function)
                 {
                     List<object> args = new List<object>();
 
                     if(!function.HasValidArgumentCount)
-                        throw new NameException($@"Invalid number of function arguments provided ({function.ArgumentCount} ({function.MinArgumentCount} - {function.MaxArgumentCount}))") { Name = function.Identifier };
+                        throw new SyntaxException($@"Invalid number of arguments provided for function '{function.Identifier}' ({function.ArgumentCount} ({function.MinArgumentCount} - {function.MaxArgumentCount}))");
                     else if(stack.Count < function.ArgumentCount)
-                        throw new NameException($@"Not enough function arguments available ({stack.Count}/{function.ArgumentCount})") { Name = function.Identifier };
+                        throw new SyntaxException($@"Insufficient arguments for function '{function.Identifier}' ({stack.Count}/{function.ArgumentCount})");
 
                     for(int i = 0; i < function.ArgumentCount; i++)
                     {
@@ -428,7 +427,7 @@ namespace Libs.Text.Parsing
             }
 
             if(stack.Count > 1)
-                throw new SyntaxException("Too many value tokens provided");
+                throw new SyntaxException($@"Too many value tokens provided");
 
             return PopValue(stack);
         }
@@ -466,7 +465,7 @@ namespace Libs.Text.Parsing
             Queue<object> result = ProcessParsing();
 
             if(State && Current != CommentIdentifier)
-                throw new SyntaxException("Unexpected characters at end of expression");
+                throw new SyntaxException($@"Unexpected characters at end of expression");
 
             Close();
             m_TemporaryVariables = null;
