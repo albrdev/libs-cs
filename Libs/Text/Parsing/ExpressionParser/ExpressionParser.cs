@@ -9,6 +9,7 @@ namespace Libs.Text.Parsing
     public class ExpressionParser : ParserBase
     {
         public delegate object NumberConvertHandler(string value);
+        public delegate object ArgumentValueHandler(object value);
 
         internal class FunctionParsingHelper
         {
@@ -48,6 +49,7 @@ namespace Libs.Text.Parsing
             get => m_NumberConverter;
             set => m_NumberConverter = value ?? DefaultNumberConverter;
         }
+        public ArgumentValueHandler ArgumentHandler { get; set; } = null;
 
         private readonly Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
         private Dictionary<string, Variable> m_TemporaryVariables;
@@ -119,7 +121,15 @@ namespace Libs.Text.Parsing
         private object PopValue(Stack<object> stack)
         {
             var result = stack.Pop();
-            return result is Variable tmp ? tmp.Value ?? throw new NameException($@"Use of unassigned variable") { Name = tmp.Identifier } : result;
+            if(result is Variable tmp)
+            {
+                if(tmp.Value is null)
+                    throw new NameException($@"Use of unassigned variable") { Name = tmp.Identifier };
+
+                result = tmp.Value;
+            }
+
+            return ArgumentHandler != null ? ArgumentHandler(result) : result;
         }
 
         private Queue<object> ProcessParsing()
