@@ -5,7 +5,6 @@ using Libs.Collections;
 using Libs.Text.Parsing;
 using static Libs.Text.Parsing.Operator;
 using Libs.Text.Formatting;
-using Libs.Text;
 
 namespace UnitTests
 {
@@ -13,6 +12,7 @@ namespace UnitTests
     {
         public BinaryOperator AssignmentOperator { get; private set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; private set; }
+        public ExtendedDictionary<string, Variable> CustomVariables { get; private set; }
         public List<object> ResultVariables { get; private set; }
 
         #region Custom methods
@@ -119,6 +119,7 @@ namespace UnitTests
         {
             AssignmentOperator = ("=", 1, AssociativityType.Right, (lhs, rhs) => (((Variable)lhs).Value = rhs));
             EscapeSequenceFormatter = new ExtendedNativeEscapeSequenceFormatter();
+            CustomVariables = new ExtendedDictionary<string, Variable>((value) => value.Identifier);
             ResultVariables = new List<object>();
 
             ArithmeticUnaryOperators = new ExtendedDictionary<char, UnaryOperator>((value) => value.Identifier)
@@ -186,22 +187,28 @@ namespace UnitTests
                 ( "max",        1, -1,  Max ),
                 ( "strlen",     1,      StringLength )
             };
+
             ArithmeticShorthandOperator = ("*", 3, AssociativityType.Right, (lhs, rhs) => System.Convert.ToDouble(lhs) * System.Convert.ToDouble(rhs));
-            ArithmeticExpressionParser = new ExpressionParser(ArithmeticUnaryOperators, ArithmeticBinaryOperators, ArithmeticVariables, ArithmeticFunctions, ArithmeticShorthandOperator, AssignmentOperator, EscapeSequenceFormatter);
+            ArithmeticExpressionParser = new ExpressionParser(ArithmeticUnaryOperators, ArithmeticBinaryOperators, ArithmeticVariables, ArithmeticFunctions, CustomVariables, AssignmentOperator);
+            ArithmeticExpressionParser.ShorthandOperator = ArithmeticShorthandOperator;
+            ArithmeticExpressionParser.EscapeSequenceFormatter = EscapeSequenceFormatter;
 
             BitwiseVariables = new ExtendedDictionary<string, Variable>((value) => value.Identifier)
             {
                 ( "false", 0 ),
                 ( "true", 1 )
             };
+
             BitwiseFunctions = new ExtendedDictionary<string, Function>((value) => value.Identifier)
             {
             };
+
             BitwiseUnaryOperators = new ExtendedDictionary<char, UnaryOperator>((value) => value.Identifier)
             {
                 ( '!', 1, AssociativityType.Right, (value) => System.Convert.ToInt32(value) != 0 ? 0 : 1 ),
                 ( '~', 1, AssociativityType.Right, (value) => ~System.Convert.ToInt32(value) )
             };
+
             BitwiseBinaryOperators = new ExtendedDictionary<string, BinaryOperator>((value) => value.Identifier)
             {
                 ( "+", 5, AssociativityType.Left, (lhs, rhs) => System.Convert.ToInt32(lhs) | System.Convert.ToInt32(rhs) ),
@@ -211,8 +218,12 @@ namespace UnitTests
                 ( "<<", 2, AssociativityType.Right, (lhs, rhs) => System.Convert.ToInt32(lhs) << System.Convert.ToInt32(rhs) ),
                 ( ">>", 2, AssociativityType.Left, (lhs, rhs) => System.Convert.ToInt32(lhs) >> System.Convert.ToInt32(rhs) )
             };
+
             BitwiseShorthandOperator = ("*", 3, AssociativityType.Right, (lhs, rhs) => System.Convert.ToInt32(lhs) & System.Convert.ToInt32(rhs));
-            BitwiseExpressionParser = new ExpressionParser(BitwiseUnaryOperators, BitwiseBinaryOperators, BitwiseVariables, BitwiseFunctions, BitwiseShorthandOperator, AssignmentOperator);
+
+            BitwiseExpressionParser = new ExpressionParser(BitwiseUnaryOperators, BitwiseBinaryOperators, BitwiseVariables, BitwiseFunctions, CustomVariables, AssignmentOperator);
+            BitwiseExpressionParser.ShorthandOperator = BitwiseShorthandOperator;
+            BitwiseExpressionParser.EscapeSequenceFormatter = EscapeSequenceFormatter;
         }
 
         public void Dispose()

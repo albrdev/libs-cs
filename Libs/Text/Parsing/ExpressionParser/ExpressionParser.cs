@@ -37,13 +37,14 @@ namespace Libs.Text.Parsing
 
         public const char CommentIdentifier = '#';
 
-        public IDictionary<char, UnaryOperator> UnaryOperators { get; set; }
-        public IDictionary<string, BinaryOperator> BinaryOperators { get; set; }
-        public IDictionary<string, Variable> Variables { get; set; }
-        public IDictionary<string, Function> Functions { get; set; }
-        public BinaryOperator ShorthandOperator { get; set; }
-        public BinaryOperator AssignmentOperator { get; set; }
-        public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
+        public IDictionary<char, UnaryOperator> UnaryOperators { get; set; } = null;
+        public IDictionary<string, BinaryOperator> BinaryOperators { get; set; } = null;
+        public IDictionary<string, Variable> Variables { get; set; } = null;
+        public IDictionary<string, Function> Functions { get; set; } = null;
+        public IDictionary<string, Variable> CustomVariables { get; set; } = null;
+        public BinaryOperator AssignmentOperator { get; set; } = null;
+        public BinaryOperator ShorthandOperator { get; set; } = null;
+        public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; } = null;
         public NumberConvertHandler NumberConverter
         {
             get => m_NumberConverter;
@@ -51,8 +52,7 @@ namespace Libs.Text.Parsing
         }
         public ArgumentValueHandler ArgumentHandler { get; set; } = null;
 
-        private readonly Dictionary<string, Variable> m_AssignedVariables = new Dictionary<string, Variable>();
-        private Dictionary<string, Variable> m_TemporaryVariables;
+        private Dictionary<string, Variable> m_TemporaryVariables = null;
         private NumberConvertHandler m_NumberConverter = DefaultNumberConverter;
         private readonly HashSet<System.Type> m_ValueTypes = new HashSet<Type> { typeof(int), typeof(double), typeof(string) };
 
@@ -115,8 +115,6 @@ namespace Libs.Text.Parsing
         {
             return token != null && m_ValueTypes.Contains(token.GetType());
         }
-
-        public void ClearAssignedVariables() => m_AssignedVariables.Clear();
 
         private object PopValue(Stack<object> stack)
         {
@@ -243,10 +241,12 @@ namespace Libs.Text.Parsing
                         {
                             if(m_TemporaryVariables == null || !m_TemporaryVariables.TryGetValue(identifier, out variable))
                             {
-                                if(!m_AssignedVariables.TryGetValue(identifier, out variable))
+                                if(CustomVariables == null)
+                                    throw new SyntaxException($@"Unknown variable '{identifier}'", Position - identifier.Length);
+                                else if(!CustomVariables.TryGetValue(identifier, out variable))
                                 {
                                     variable = new Variable(identifier);
-                                    m_AssignedVariables[variable.Identifier] = variable;
+                                    CustomVariables[variable.Identifier] = variable;
                                 }
                             }
                         }
@@ -453,18 +453,17 @@ namespace Libs.Text.Parsing
                 return null;
 
             m_TemporaryVariables = variables.Select(e => (Variable)e).ToDictionary((e) => e.Identifier);
-
             Queue<object> result = ProcessParsing();
+            m_TemporaryVariables = null;
 
             if(State && Current != CommentIdentifier)
                 throw new SyntaxException($@"Unexpected characters at end of expression");
 
             Close();
-            m_TemporaryVariables = null;
             return result;
         }
 
-        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, Variable> variables, IDictionary<string, Function> functions, BinaryOperator shorthandOperator = null, BinaryOperator assignmentOperator = null, EscapeSequenceFormatter escapeSequenceFormatter = null)
+        public ExpressionParser(IDictionary<char, UnaryOperator> unaryOperators, IDictionary<string, BinaryOperator> binaryOperators, IDictionary<string, Variable> variables, IDictionary<string, Function> functions, IDictionary<string, Variable> customVariables = null, BinaryOperator assignmentOperator = null)
         {
             UnaryOperators = unaryOperators;
             BinaryOperators = binaryOperators;
@@ -472,9 +471,9 @@ namespace Libs.Text.Parsing
             Variables = variables;
             Functions = functions;
 
-            ShorthandOperator = shorthandOperator;
+            CustomVariables = customVariables;
+
             AssignmentOperator = assignmentOperator;
-            EscapeSequenceFormatter = escapeSequenceFormatter;
         }
     }
 }

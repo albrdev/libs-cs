@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 using UnitTests.TestPriority;
+using Libs.Text.Parsing;
 
 namespace UnitTests
 {
