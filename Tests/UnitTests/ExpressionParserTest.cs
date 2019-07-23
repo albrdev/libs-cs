@@ -491,6 +491,30 @@ namespace UnitTests
             Assert.Equal(cmp, res);
         }
 
+        [Fact] // 1 == 1
+        public void Arithmetic_40()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"1 == 1");
+            bool cmp = 1 == 1;
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
+        [Fact] // max(1, 1 + 1, 0)
+        public void Arithmetic_41()
+        {
+            var res = m_Fixture.ArithmeticExpressionParser.Evaluate(@"max(1, 1 + 1, 0)");
+            double cmp = (double)ExpressionParserTestFixture.Max(1, 1 + 1, 0);
+
+            m_Output.WriteLine($@"""{ cmp }""");
+            m_Output.WriteLine($@"""{ res }""");
+
+            Assert.Equal(cmp, res);
+        }
+
         [Fact] // 1 + 0 * 1
         public void Bitwise_01()
         {

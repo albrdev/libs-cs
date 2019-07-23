@@ -125,7 +125,9 @@ namespace UnitTests
             ArithmeticUnaryOperators = new ExtendedDictionary<char, UnaryOperator>((value) => value.Identifier)
             {
                 ( '+', 1, AssociativityType.Right,  (value) => +System.Convert.ToDouble(value) ),
-                ( '-', 1, AssociativityType.Right,  (value) => -System.Convert.ToDouble(value) )
+                ( '-', 1, AssociativityType.Right,  (value) => -System.Convert.ToDouble(value) ),
+
+                ( '!', 1, AssociativityType.Right,  (value) => { double tmp = System.Convert.ToDouble(value); return tmp == 0D || tmp == double.NaN; } )
             };
 
             ArithmeticBinaryOperators = new ExtendedDictionary<string, BinaryOperator>((value) => value.Identifier)
@@ -138,7 +140,14 @@ namespace UnitTests
                 ( "^", 2, AssociativityType.Right,  (lhs, rhs) => Exponentiation(lhs, rhs) ),
 
                 ( "//", 3, AssociativityType.Right, (lhs, rhs) => Math.Truncate(System.Convert.ToDouble(lhs) / System.Convert.ToDouble(rhs)) ),
-                ( "**", 2, AssociativityType.Left,  (lhs, rhs) => Exponentiation(lhs, rhs) )
+                ( "**", 2, AssociativityType.Right, (lhs, rhs) => Exponentiation(lhs, rhs) ),
+
+                ( "==", 5, AssociativityType.Left,  (lhs, rhs) => System.Convert.ToDouble(lhs) == System.Convert.ToDouble(lhs) ),
+                ( "!=", 5, AssociativityType.Left,  (lhs, rhs) => System.Convert.ToDouble(lhs) != System.Convert.ToDouble(lhs) ),
+                ( "<", 5, AssociativityType.Left,   (lhs, rhs) => System.Convert.ToDouble(lhs) < System.Convert.ToDouble(lhs) ),
+                ( ">", 5, AssociativityType.Left,   (lhs, rhs) => System.Convert.ToDouble(lhs) > System.Convert.ToDouble(lhs) ),
+                ( "<=", 5, AssociativityType.Left,  (lhs, rhs) => System.Convert.ToDouble(lhs) <= System.Convert.ToDouble(lhs) ),
+                ( ">=", 5, AssociativityType.Left,  (lhs, rhs) => System.Convert.ToDouble(lhs) >= System.Convert.ToDouble(lhs) )
             };
 
             ArithmeticVariables = new ExtendedDictionary<string, Variable>((value) => value.Identifier)
