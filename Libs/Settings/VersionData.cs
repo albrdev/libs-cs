@@ -9,10 +9,10 @@ namespace Libs.Settings
     {
         public enum RevisionType
         {
-            a = 0,
-            b = 1,
-            rc = 2,
-            r = 3
+            r = 0,
+            a = 1,
+            b = 2,
+            rc = 3
         }
 
         [XmlAttribute("Major")]
@@ -32,7 +32,7 @@ namespace Libs.Settings
 
         public override string ToString()
         {
-            return ToString("%M.%m.%i%R");
+            return ToString("%M.%m.%i-%R");
         }
 
         public string ToString(string format)
