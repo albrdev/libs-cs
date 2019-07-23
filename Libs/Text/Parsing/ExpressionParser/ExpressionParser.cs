@@ -452,7 +452,7 @@ namespace Libs.Text.Parsing
             if(!State)
                 return null;
 
-            m_TemporaryVariables = variables.Select(e => (Variable)e).ToDictionary((e) => e.Identifier);
+            m_TemporaryVariables = variables.Any() ? variables.Select(e => (Variable)e).ToDictionary((e) => e.Identifier) : null;
             Queue<object> result = ProcessParsing();
             m_TemporaryVariables = null;
 
