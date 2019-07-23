@@ -12,28 +12,28 @@ namespace UnitTests
     {
         public BinaryOperator AssignmentOperator { get; private set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; private set; }
-        public ExtendedDictionary<string, Variable> CustomVariables { get; private set; }
-        public List<object> ResultVariables { get; private set; }
+        public Dictionary<string, Variable> CustomVariables { get; private set; }
+        public List<object> Results { get; private set; }
 
         #region Custom methods
         public object Ans(params object[] args)
         {
-            if(!ResultVariables.Any())
+            if(!Results.Any())
                 throw new System.IndexOutOfRangeException();
 
             if(!args.Any())
-                return ResultVariables.Last();
+                return Results.Last();
 
             int index = System.Convert.ToInt32(args[0]);
             if(index < 0)
-                index = ResultVariables.Count + index;
+                index = Results.Count + index;
 
             if(index < 0)
                 index = 0;
-            else if(index >= ResultVariables.Count)
-                index = ResultVariables.Count - 1;
+            else if(index >= Results.Count)
+                index = Results.Count - 1;
 
-            return ResultVariables[index];
+            return Results[index];
         }
 
         public static object PI(params object[] args)
@@ -119,14 +119,15 @@ namespace UnitTests
         {
             AssignmentOperator = ("=", 1, AssociativityType.Right, (lhs, rhs) => (((Variable)lhs).Value = rhs));
             EscapeSequenceFormatter = new ExtendedNativeEscapeSequenceFormatter();
-            CustomVariables = new ExtendedDictionary<string, Variable>((value) => value.Identifier);
-            ResultVariables = new List<object>();
+            CustomVariables = new Dictionary<string, Variable>();
+            Results = new List<object>();
 
             ArithmeticUnaryOperators = new ExtendedDictionary<char, UnaryOperator>((value) => value.Identifier)
             {
                 ( '+', 1, AssociativityType.Right,  (value) => +System.Convert.ToDouble(value) ),
                 ( '-', 1, AssociativityType.Right,  (value) => -System.Convert.ToDouble(value) )
             };
+
             ArithmeticBinaryOperators = new ExtendedDictionary<string, BinaryOperator>((value) => value.Identifier)
             {
                 ( "+", 4, AssociativityType.Left,   (lhs, rhs) => lhs is string || rhs is string ? (object)$"{lhs}{rhs}" : (object)(System.Convert.ToDouble(lhs) + System.Convert.ToDouble(rhs)) ),
@@ -139,6 +140,7 @@ namespace UnitTests
                 ( "//", 3, AssociativityType.Right, (lhs, rhs) => Math.Truncate(System.Convert.ToDouble(lhs) / System.Convert.ToDouble(rhs)) ),
                 ( "**", 2, AssociativityType.Left,  (lhs, rhs) => Exponentiation(lhs, rhs) )
             };
+
             ArithmeticVariables = new ExtendedDictionary<string, Variable>((value) => value.Identifier)
             {
                 ( "T",          1000000000000.0 ),
@@ -159,6 +161,7 @@ namespace UnitTests
                 ( "phys.c",     299792458 ),
                 ( "phys.au",    149597870700 )
             };
+
             ArithmeticFunctions = new ExtendedDictionary<string, Function>((value) => value.Identifier)
             {
                 ( "ans",        0, 1,   Ans ),

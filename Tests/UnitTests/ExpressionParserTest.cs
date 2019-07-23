@@ -27,7 +27,7 @@ namespace UnitTests
             m_Output.WriteLine($@"""{ cmp }""");
             m_Output.WriteLine($@"""{ res }""");
 
-            m_Fixture.ResultVariables.Add(res);
+            m_Fixture.Results.Add(res);
             Assert.Equal(cmp, res);
         }
 
@@ -40,7 +40,7 @@ namespace UnitTests
             m_Output.WriteLine($@"""{ cmp }""");
             m_Output.WriteLine($@"""{ res }""");
 
-            m_Fixture.ResultVariables.Add(res);
+            m_Fixture.Results.Add(res);
             Assert.Equal(cmp, res);
         }
 
@@ -53,7 +53,7 @@ namespace UnitTests
             m_Output.WriteLine($@"""{ cmp }""");
             m_Output.WriteLine($@"""{ res }""");
 
-            m_Fixture.ResultVariables.Add(res);
+            m_Fixture.Results.Add(res);
             Assert.Equal(cmp, res);
         }
 
@@ -66,7 +66,7 @@ namespace UnitTests
             m_Output.WriteLine($@"""{ cmp }""");
             m_Output.WriteLine($@"""{ res }""");
 
-            m_Fixture.ResultVariables.Add(res);
+            m_Fixture.Results.Add(res);
             Assert.Equal(cmp, res);
         }
 
@@ -79,7 +79,7 @@ namespace UnitTests
             m_Output.WriteLine($@"""{ cmp }""");
             m_Output.WriteLine($@"""{ res }""");
 
-            m_Fixture.ResultVariables.Add(res);
+            m_Fixture.Results.Add(res);
             Assert.Equal(cmp, res);
         }
 
