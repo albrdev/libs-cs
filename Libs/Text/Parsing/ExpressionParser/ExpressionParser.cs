@@ -139,7 +139,7 @@ namespace Libs.Text.Parsing
 
             string unOps = UnaryOperators != null ? string.Concat(UnaryOperators.Keys) : string.Empty;
             string binOps = BinaryOperators != null ? string.Concat(BinaryOperators.Keys) : string.Empty;
-            unOps += AssignmentOperator?.Identifier;
+            binOps += AssignmentOperator?.Identifier;
 
             // While there are tokens to be read:
             // Read a token.
