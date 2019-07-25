@@ -4,7 +4,6 @@ using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.Abstractions;
-using Libs.Extensions;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
@@ -40,7 +39,12 @@ namespace UnitTests.TestPriority
             foreach(var testCase in testCases)
             {
                 IAttributeInfo attribute = testCase.TestMethod.Method.GetCustomAttributes((typeof(TestPriorityAttribute))).FirstOrDefault();
-                sortedTestCases.GetOrAdd(attribute != null ? attribute.GetNamedArgument<int>("Priority") : 0).Add(testCase);
+
+                int priority = attribute != null ? attribute.GetNamedArgument<int>("Priority") : 0;
+                if(!sortedTestCases.TryGetValue(priority, out var list))
+                    sortedTestCases.Add(priority, (list = new List<T>()));
+
+                list.Add(testCase);
             }
 
             foreach(var list in sortedTestCases.Values)
