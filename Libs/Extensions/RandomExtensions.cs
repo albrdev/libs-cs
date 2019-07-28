@@ -7,6 +7,9 @@ namespace Libs.Extensions
     {
         public static byte[] GetBits(this System.Random self, int count)
         {
+            if(self == null)
+                throw new System.ArgumentNullException($@"self");
+
             if(count < 0)
                 throw new System.ArgumentOutOfRangeException();
             else if(count == 0)
@@ -27,6 +30,9 @@ namespace Libs.Extensions
 
         public static byte[] GetBytes(this System.Random self, int count)
         {
+            if(self == null)
+                throw new System.ArgumentNullException($@"self");
+
             byte[] buffer = new byte[count];
             self.NextBytes(buffer);
             return buffer;
@@ -34,6 +40,9 @@ namespace Libs.Extensions
 
         public static IEnumerable<byte> GetByteSequence(this System.Random self)
         {
+            if(self == null)
+                throw new System.ArgumentNullException($@"self");
+
             byte[] buffer = new byte[sizeof(byte)];
             while(true)
             {
@@ -44,6 +53,9 @@ namespace Libs.Extensions
 
         public static bool NextBool(this System.Random self)
         {
+            if(self == null)
+                throw new System.ArgumentNullException($@"self");
+
             byte[] buffer = new byte[sizeof(bool)];
             self.NextBytes(buffer);
 
@@ -52,6 +64,9 @@ namespace Libs.Extensions
 
         public static double NextDoubleInclusive(this System.Random self)
         {
+            if(self == null)
+                throw new System.ArgumentNullException($@"self");
+
             byte[] buffer = new byte[sizeof(uint)];
             self.NextBytes(buffer);
 
@@ -60,6 +75,9 @@ namespace Libs.Extensions
 
         public static double NextGaussian(this System.Random self, double mu = 0D, double sigma = 1D)
         {
+            if(self == null)
+                throw new System.ArgumentNullException($@"self");
+
             var u1 = 1D - self.NextDouble();
             var u2 = self.NextDouble();
 
