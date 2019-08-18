@@ -39,11 +39,11 @@ namespace Libs.Text.Parsing
             MaxArgumentCount = maxArgumentCount;
         }
 
-        public Function(string identifier, int minArgumentCount, EvaluationHandler callback)
+        public Function(string identifier, int argumentCount, EvaluationHandler callback)
         {
             Identifier = identifier;
             Callback = callback;
-            MaxArgumentCount = MinArgumentCount = minArgumentCount;
+            MaxArgumentCount = MinArgumentCount = argumentCount;
         }
 
         public Function(string identifier, EvaluationHandler callback)
