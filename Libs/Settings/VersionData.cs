@@ -32,7 +32,7 @@ namespace Libs.Settings
 
         public override string ToString()
         {
-            return ToString("%M.%m.%i-%R");
+            return Revision == RevisionType.r ? ToString("%M.%m.%i") : ToString("%M.%m.%i-%R");
         }
 
         public string ToString(string format)
