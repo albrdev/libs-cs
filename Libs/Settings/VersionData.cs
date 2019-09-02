@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
@@ -7,32 +8,96 @@ namespace Libs.Settings
     [Serializable, XmlType("Version")]
     public struct VersionData
     {
-        public enum RevisionType
-        {
-            r = 0,
-            a = 1,
-            b = 2,
-            rc = 3
-        }
-
         [XmlAttribute("Major")]
         public int Major { get; private set; }
 
         [XmlAttribute("Minor")]
         public int Minor { get; private set; }
 
-        [XmlAttribute("Maintenance")]
-        public int Maintenance { get; private set; }
+        [XmlAttribute("Patch")]
+        public int Patch { get; private set; }
 
-        [XmlAttribute("Revision")]
-        public RevisionType Revision { get; private set; }
+        [XmlAttribute("Tag")]
+        public string Tag { get; private set; }
 
         [XmlAttribute("Build")]
-        public int Build { get; private set; }
+        public string Build { get; private set; }
+
+        public static bool operator ==(VersionData lhs, VersionData rhs)
+        {
+            return lhs.Major == rhs.Major && lhs.Minor == rhs.Minor && lhs.Patch == rhs.Patch;
+        }
+
+        public static bool operator !=(VersionData lhs, VersionData rhs)
+        {
+            return lhs.Major != rhs.Major || lhs.Minor != rhs.Minor || lhs.Patch != rhs.Patch;
+        }
+
+        public static bool operator >(VersionData lhs, VersionData rhs)
+        {
+            return lhs.Major > rhs.Major || lhs.Minor > rhs.Minor || lhs.Patch > rhs.Patch;
+        }
+
+        public static bool operator <(VersionData lhs, VersionData rhs)
+        {
+            return lhs.Major < rhs.Major || lhs.Minor < rhs.Minor || lhs.Patch < rhs.Patch;
+        }
+
+        public static VersionData operator +(VersionData lhs, VersionData rhs)
+        {
+            (int Major, int Minor, int Patch) result = lhs;
+            if(rhs.Major != 0)
+            {
+                result.Major += rhs.Major;
+                result.Patch = result.Minor = 0;
+            }
+            else if(rhs.Minor != 0)
+            {
+                result.Minor += rhs.Minor;
+                result.Patch = 0;
+            }
+            else
+            {
+                result.Patch += rhs.Patch;
+            }
+
+            return result;
+        }
+
+        public static VersionData operator -(VersionData lhs, VersionData rhs)
+        {
+            (int Major, int Minor, int Patch) result = lhs;
+            if(rhs.Major != 0)
+            {
+                result.Major -= rhs.Major;
+                result.Patch = result.Minor = 0;
+            }
+            else if(rhs.Minor != 0)
+            {
+                result.Minor -= rhs.Minor;
+                result.Patch = 0;
+            }
+            else
+            {
+                result.Patch -= rhs.Patch;
+            }
+
+            return result;
+        }
+
+        public static implicit operator VersionData((int Major, int Minor, int Patch) rhs)
+        {
+            return new VersionData(rhs.Major, rhs.Minor, rhs.Patch);
+        }
+
+        public static implicit operator (int Major, int Minor, int Patch)(VersionData rhs)
+        {
+            return (rhs.Major, rhs.Minor, rhs.Patch);
+        }
 
         public override string ToString()
         {
-            return Revision == RevisionType.r ? ToString("%M.%m.%i") : ToString("%M.%m.%i-%R");
+            return ToString("%F");
         }
 
         public string ToString(string format)
@@ -51,42 +116,63 @@ namespace Libs.Settings
             {
                 case '%':
                     return "%";
+
                 case 'M':
                     return Major.ToString();
                 case 'm':
                     return Minor.ToString();
-                case 'i':
-                    return Maintenance.ToString();
-                case 'r':
-                    return Revision.ToString();
-                case 'R':
-                    return Revision != RevisionType.r ? Revision.ToString() : string.Empty;
-                case 'n':
-                    return ((int)Revision).ToString();
-                case 'N':
-                    return Revision != RevisionType.r ? ((int)Revision).ToString() : string.Empty;
+                case 'p':
+                    return Patch.ToString();
+                case 't':
+                    return Tag;
                 case 'b':
-                    return Build != 0 ? Build.ToString() : string.Empty;
+                    return Build;
+
+                case 'F':
+                    return $"{Major}.{Minor}.{Patch}{(Tag != null ? $"-{Tag}" : null)}{(Build != null ? $"+{Build}" : null)}";
+                case 'f':
+                    return $"{Major}.{Minor}.{Patch}";
+                case 'T':
+                    return $"{Major}.{Minor}.{Patch}{(Tag != null ? $"-{Tag}" : null)}";
+                case 'B':
+                    return $"{Major}.{Minor}.{Patch}{(Build != null ? $"+{Build}" : null)}";
+
                 default:
                     throw new System.FormatException($@"Unknown format flag: '{flag}'");
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is VersionData data && Major == data.Major && Minor == data.Minor && Patch == data.Patch && Tag == data.Tag && Build == data.Build;
+        }
+
+        public override int GetHashCode()
+        {
+            var result = 1429805799;
+            result = result * -1521134295 + Major.GetHashCode();
+            result = result * -1521134295 + Minor.GetHashCode();
+            result = result * -1521134295 + Patch.GetHashCode();
+            result = result * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Tag);
+            result = result * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Build);
+            return result;
         }
 
         public VersionData(VersionData other) : this()
         {
             Major = other.Major;
             Minor = other.Minor;
-            Maintenance = other.Maintenance;
-            Revision = other.Revision;
+            Patch = other.Patch;
+            Tag = other.Tag;
             Build = other.Build;
         }
 
-        public VersionData(int major, int minor, int maintenance, RevisionType revision = RevisionType.r, int build = 0) : this()
+        public VersionData(int major, int minor, int patch, string tag = null, string build = null) : this()
         {
             Major = major;
             Minor = minor;
-            Maintenance = maintenance;
-            Revision = revision;
+            Patch = patch;
+            Tag = tag;
             Build = build;
         }
     }
