@@ -17,7 +17,9 @@
     <ProjectReference Include="..\..\Libs\Core\Core.csproj" />
     <ProjectReference Include="..\..\Libs\Extensions\Extensions.csproj" />
     <ProjectReference Include="..\..\Libs\Misc\Misc.csproj" />
+    <ProjectReference Include="..\..\Libs\Settings\Settings.csproj" />
     <ProjectReference Include="..\..\Libs\Text\Text.csproj" />
+    <ProjectReference Include="..\..\Libs\Utilities\Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
