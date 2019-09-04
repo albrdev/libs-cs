@@ -413,8 +413,7 @@ namespace Libs.Text.Parsing
                         args.Add(PopValue(stack));
                     }
 
-                    args.Reverse();
-                    stack.Push(function.Callback(args.ToArray()));
+                    stack.Push(function.Callback(((IEnumerable<object>)args).Reverse().ToArray()));
                 }
             }
 
