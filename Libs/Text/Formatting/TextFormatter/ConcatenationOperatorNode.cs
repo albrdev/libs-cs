@@ -9,7 +9,7 @@ namespace Libs.Text.Formatting
             return $"{LHS.Evaluate()}{RHS.Evaluate()}";
         }
 
-        internal ConcatenationOperatorNode(Evaluable lhs, Evaluable rhs) : base(lhs, rhs) { }
+        internal ConcatenationOperatorNode(IEvaluable lhs, IEvaluable rhs) : base(lhs, rhs) { }
 
         internal ConcatenationOperatorNode() { }
     }

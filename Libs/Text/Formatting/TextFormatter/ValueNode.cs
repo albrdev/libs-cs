@@ -2,7 +2,7 @@
 
 namespace Libs.Text.Formatting
 {
-    public class ValueNode : Evaluable
+    public class ValueNode : IEvaluable
     {
         protected object Value { get; set; }
 

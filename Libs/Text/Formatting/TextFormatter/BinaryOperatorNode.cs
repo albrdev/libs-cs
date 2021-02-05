@@ -2,14 +2,14 @@
 
 namespace Libs.Text.Formatting
 {
-    public abstract class BinaryOperatorNode : Evaluable
+    public abstract class BinaryOperatorNode : IEvaluable
     {
-        internal Evaluable LHS { get; set; }
-        internal Evaluable RHS { get; set; }
+        internal IEvaluable LHS { get; set; }
+        internal IEvaluable RHS { get; set; }
 
         public abstract object Evaluate();
 
-        protected BinaryOperatorNode(Evaluable lhs, Evaluable rhs)
+        protected BinaryOperatorNode(IEvaluable lhs, IEvaluable rhs)
         {
             LHS = lhs;
             RHS = rhs;

@@ -2,7 +2,7 @@
 
 namespace Libs.Text.Formatting
 {
-    public interface Evaluable
+    public interface IEvaluable
     {
         object Evaluate();
     }

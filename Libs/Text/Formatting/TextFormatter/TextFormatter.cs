@@ -22,8 +22,7 @@ namespace Libs.Text.Formatting
         }
 
         private char m_Qualifier;
-
-        private (TokenType Type, object Object) CurrentToken = default;
+        private (TokenType Type, object Object) m_CurrentToken = default;
 
         public char Qualifier
         {
@@ -41,9 +40,9 @@ namespace Libs.Text.Formatting
         public IDictionary<string, FunctionNode.EvaluationHandler> Functions { get; set; }
         public EscapeSequenceFormatter EscapeSequenceFormatter { get; set; }
 
-        private static bool IsNumber(char value) { return char.IsNumber(value) || value == '.' || value == '-'; }
-        private static bool IsIdentifier(char value) { return char.IsLetter(value) || value == '_'; }
-        private static bool IsIdentifier2(char value) { return IsIdentifier(value) || char.IsDigit(value) || value == '.'; }
+        private static bool IsNumber(char value) => char.IsNumber(value) || value == '.' || value == '-';
+        private static bool IsIdentifier(char value) => char.IsLetter(value) || value == '_';
+        private static bool IsIdentifier2(char value) => IsIdentifier(value) || char.IsDigit(value) || value == '.';
 
         private string ExtractNumber()
         {
@@ -93,7 +92,7 @@ namespace Libs.Text.Formatting
 
         private void NextToken()
         {
-            CurrentToken = default;
+            m_CurrentToken = default;
 
             Skip(char.IsWhiteSpace);
 
@@ -103,38 +102,38 @@ namespace Libs.Text.Formatting
             switch(Current)
             {
                 case '+':
-                    CurrentToken.Type = TokenType.ConcatenationOperator;
+                    m_CurrentToken.Type = TokenType.ConcatenationOperator;
                     break;
                 case '\'':
                 case '\"':
-                    CurrentToken.Object = ExtractString();
-                    CurrentToken.Type = TokenType.Value;
+                    m_CurrentToken.Object = ExtractString();
+                    m_CurrentToken.Type = TokenType.Value;
                     return;
                 case '(':
-                    CurrentToken.Type = TokenType.OpeningBracket;
+                    m_CurrentToken.Type = TokenType.OpeningBracket;
                     break;
                 case ')':
-                    CurrentToken.Type = TokenType.ClosingBracket;
+                    m_CurrentToken.Type = TokenType.ClosingBracket;
                     break;
                 case ',':
-                    CurrentToken.Type = TokenType.ArgumentSeparator;
+                    m_CurrentToken.Type = TokenType.ArgumentSeparator;
                     break;
                 case '{':
-                    CurrentToken.Type = TokenType.ExpressionStart;
+                    m_CurrentToken.Type = TokenType.ExpressionStart;
                     break;
                 case '}':
-                    CurrentToken.Type = TokenType.ExpressionEnd;
+                    m_CurrentToken.Type = TokenType.ExpressionEnd;
                     break;
                 default:
                     if(IsNumber(Current))
                     {
-                        CurrentToken.Object = ParseNumber(ExtractNumber());
-                        CurrentToken.Type = TokenType.Value;
+                        m_CurrentToken.Object = ParseNumber(ExtractNumber());
+                        m_CurrentToken.Type = TokenType.Value;
                     }
                     else if(IsIdentifier(Current))
                     {
-                        CurrentToken.Object = ExtractIdentifier();
-                        CurrentToken.Type = TokenType.Identifier;
+                        m_CurrentToken.Object = ExtractIdentifier();
+                        m_CurrentToken.Type = TokenType.Identifier;
                     }
 
                     return;
@@ -143,30 +142,30 @@ namespace Libs.Text.Formatting
             Next();
         }
 
-        private Evaluable ParseLeaf()
+        private IEvaluable ParseLeaf()
         {
-            if(CurrentToken.Type == TokenType.Value)
+            if(m_CurrentToken.Type == TokenType.Value)
             {
-                ValueNode node = new ValueNode(CurrentToken.Object);
+                ValueNode node = new ValueNode(m_CurrentToken.Object);
                 NextToken();
                 return node;
             }
-            else if(CurrentToken.Type == TokenType.OpeningBracket)
+            else if(m_CurrentToken.Type == TokenType.OpeningBracket)
             {
                 NextToken();
                 var node = ParseBranch();
-                if(CurrentToken.Type != TokenType.ClosingBracket)
+                if(m_CurrentToken.Type != TokenType.ClosingBracket)
                     throw new SyntaxException($@"Missing matching closing bracket");
 
                 NextToken();
                 return node;
             }
-            else if(CurrentToken.Type == TokenType.Identifier)
+            else if(m_CurrentToken.Type == TokenType.Identifier)
             {
-                string identifier = (string)CurrentToken.Object;
+                string identifier = (string)m_CurrentToken.Object;
 
                 NextToken();
-                if(CurrentToken.Type == TokenType.OpeningBracket)
+                if(m_CurrentToken.Type == TokenType.OpeningBracket)
                 {
                     if(Functions == null || !Functions.TryGetValue(identifier, out FunctionNode.EvaluationHandler callback))
                         throw new SyntaxException($@"Unknown function '{identifier}'", Position - identifier.Length);
@@ -174,17 +173,17 @@ namespace Libs.Text.Formatting
                     FunctionNode function = new FunctionNode((FunctionNode.EvaluationHandler)callback);
 
                     NextToken();
-                    while(CurrentToken.Type != TokenType.ClosingBracket && CurrentToken.Type != TokenType.None)
+                    while(m_CurrentToken.Type != TokenType.ClosingBracket && m_CurrentToken.Type != TokenType.None)
                     {
                         function.Add(ParseBranch());
 
-                        if(CurrentToken.Type == TokenType.ArgumentSeparator)
+                        if(m_CurrentToken.Type == TokenType.ArgumentSeparator)
                         {
                             NextToken();
                         }
                     }
 
-                    if(CurrentToken.Type != TokenType.ClosingBracket)
+                    if(m_CurrentToken.Type != TokenType.ClosingBracket)
                         throw new SyntaxException($@"Missing matching closing bracket");
 
                     NextToken();
@@ -200,14 +199,14 @@ namespace Libs.Text.Formatting
             }
             else
             {
-                throw new SyntaxException($@"Unexpected token: '{ CurrentToken.Type }'");
+                throw new SyntaxException($@"Unexpected token: '{ m_CurrentToken.Type }'");
             }
         }
 
-        private Evaluable ParseBranch()
+        private IEvaluable ParseBranch()
         {
             var lhs = ParseLeaf();
-            while(CurrentToken.Type == TokenType.ConcatenationOperator)
+            while(m_CurrentToken.Type == TokenType.ConcatenationOperator)
             {
                 NextToken();
                 var rhs = ParseLeaf();
@@ -217,16 +216,16 @@ namespace Libs.Text.Formatting
             return lhs;
         }
 
-        private Evaluable ParseExpression()
+        private IEvaluable ParseExpression()
         {
             NextToken();
-            if(CurrentToken.Type != TokenType.ExpressionStart)
+            if(m_CurrentToken.Type != TokenType.ExpressionStart)
                 throw new SyntaxException("Missing expression opening parenthesis");
 
             NextToken();
             var node = ParseBranch();
 
-            if(CurrentToken.Type != TokenType.ExpressionEnd)
+            if(m_CurrentToken.Type != TokenType.ExpressionEnd)
                 throw new SyntaxException("Missing expression closing parenthesis");
 
             return node;
